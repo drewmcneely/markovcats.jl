@@ -1,4 +1,14 @@
 # Main entry point for the library. Mostly includes and exports.
 module MarkovCats
-
 using Base: show
+
+export @vars, Kernel, copykernel, discardkernel, possiblewiring, plot
+
+include("dsl/types.jl")
+include("dsl/constructors.jl")
+include("dsl/printing.jl")
+include("dsl/macros.jl")
+
+include("graphmatching/graphmatching.jl")
+
+end # module

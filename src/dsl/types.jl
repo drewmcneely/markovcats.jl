@@ -12,10 +12,22 @@ struct Signature
 	source::Vector{Var}
 end
 
-struct Kernel
-	name::Symbol
-	signature::Signature
-end
-inputs(k::Kernel) = k.signature.source
-outputs(k::Kernel) = k.signature.target
+abstract type AbstractPort end
+abstract type AbstractKernel end
 
+struct Kernel <: AbstractKernel
+	name::Symbol
+	inputports::Vector{AbstractPort}
+	outputports::Vector{AbstractPort}
+end
+ports(k::Kernel) = vcat(k.inputports, k.outputports)
+signature(k::Kernel) = [p.var for p in k.inputports] | [p.var for p in k.outputports]
+inputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.inputports).(ks)...)
+outputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.outputports).(ks)...)
+
+Base.@kwdef mutable struct Port <: AbstractPort
+	var::Var
+	kernel::Union{Nothing, Kernel} = nothing
+	kind::Symbol	# :input or :output
+	index::Int
+end
