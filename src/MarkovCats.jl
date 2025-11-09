@@ -9,6 +9,6 @@ include("dsl/constructors.jl")
 include("dsl/printing.jl")
 include("dsl/macros.jl")
 
-include("graphmatching/graphmatching.jl")
+include("graphmatching/matching.jl")
 
 end # module

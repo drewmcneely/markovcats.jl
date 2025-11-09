@@ -24,9 +24,10 @@ struct Wiring
 	wires::SimpleGraph
 end
 function plot(w::Wiring)
-    ctx = gplot(w.wires)                # Compose.Context
-    # draw(SVG("graph.svg", 800, 600), ctx)   # safest: vector output
-    draw(PNG("graph.png", 800, 600), ctx) # PNG also fine if Cairo is loaded
+	g = w.wires
+	nodelabel = collect(vertices(g))
+	ctx = gplot(g, layout=circular_layout, nodelabel=nodelabel)
+	draw(PNG("graph.png", 800, 600), ctx)
 end
 
 function possiblewiring(outputs::AbstractVector{<:AbstractPort}, inputs::AbstractVector{<:AbstractPort})::Wiring
