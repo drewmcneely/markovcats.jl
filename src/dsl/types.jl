@@ -25,6 +25,7 @@ signature(k::Kernel) = [p.var for p in k.inputports] | [p.var for p in k.outputp
 inputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.inputports).(ks)...)
 outputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.outputports).(ks)...)
 
+# TODO: Add show method for ports. Make it contain info on what kernel it's attached to and its var
 Base.@kwdef mutable struct Port <: AbstractPort
 	var::Var
 	kernel::Union{Nothing, Kernel} = nothing

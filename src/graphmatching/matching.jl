@@ -23,6 +23,10 @@ struct Wiring
 	inputs::Vector{Port}
 	wires::SimpleGraph
 end
+#
+# TODO: Change layout and labels to make this easier to visualize
+# Add nodelabels that match the show method of the ports
+# Make this circular shell I guess? To show inputs and outputs. I wish there were a bipartite mode.
 function plot(w::Wiring)
 	g = w.wires
 	nodelabel = collect(vertices(g))
