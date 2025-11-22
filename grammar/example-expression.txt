@@ -1,0 +1,40 @@
+:( h(z|x) = sum(y)( g(z|y) * f(y|x) ) )
+
+:(h(z | x) = begin
+          #= REPL[4]:1 =#
+          (sum(y))(g(z | y) * f(y | x))
+      end)
+
+Expr
+  head: Symbol =
+  args: Array{Any}((2,))
+    1: Expr
+      head: Symbol call
+      args: Array{Any}((2,))
+        1: Symbol h
+        2: Expr
+          head: Symbol call
+          args: Array{Any}((3,))
+            1: Symbol |
+            2: Symbol z
+            3: Symbol x
+    2: Expr
+      head: Symbol block
+      args: Array{Any}((2,))
+        1: LineNumberNode
+          line: Int64 1
+          file: Symbol REPL[1]
+        2: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Expr
+              head: Symbol call
+              args: Array{Any}((2,))
+                1: Symbol sum
+                2: Symbol y
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol *
+                2: Expr
+                3: Expr
