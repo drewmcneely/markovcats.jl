@@ -32,3 +32,8 @@ Base.@kwdef mutable struct Port <: AbstractPort
 	kind::Symbol	# :input or :output
 	index::Int
 end
+
+struct KernelList
+	boundary_kernel::Kernel
+	inner_kernels::Vector{Kernel}
+end

@@ -2,7 +2,8 @@
 module MarkovCats
 using Base: show
 
-export @vars, Kernel, copykernel, discardkernel, possiblewiring, plot, Wiring, vertices
+export @vars, copykernel, discardkernel, possiblewiring, Wiring, vertices
+export Kernel, KernelList, PortGraph
 
 include("dsl/types.jl")
 include("dsl/constructors.jl")
@@ -10,5 +11,6 @@ include("dsl/printing.jl")
 include("dsl/macros.jl")
 
 include("graphmatching/matching.jl")
+include("graphmatching/printing.jl")
 
 end # module
