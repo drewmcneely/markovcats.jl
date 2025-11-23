@@ -1,8 +1,5 @@
-using Cairo, Fontconfig
-using Compose
 using Graphs
 using GraphsMatching
-using GraphPlot
 
 # """
 # Wires get sent from outputs to inputs.
@@ -22,16 +19,6 @@ struct Wiring
 	outputs::Vector{Port}
 	inputs::Vector{Port}
 	wires::SimpleGraph
-end
-#
-# TODO: Change layout and labels to make this easier to visualize
-# Add nodelabels that match the show method of the ports
-# Make this circular shell I guess? To show inputs and outputs. I wish there were a bipartite mode.
-function plot(w::Wiring)
-	g = w.wires
-	nodelabel = collect(vertices(g))
-	ctx = gplot(g, layout=circular_layout, nodelabel=nodelabel)
-	draw(PNG("graph.png", 800, 600), ctx)
 end
 
 function possiblewiring(outputs::AbstractVector{<:AbstractPort}, inputs::AbstractVector{<:AbstractPort})::Wiring
