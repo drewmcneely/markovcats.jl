@@ -1,19 +1,7 @@
 using Pkg
 Pkg.activate(joinpath(@__DIR__, ".."))
 
-using Cairo, Fontconfig
-using Compose
 using MarkovCats
-using GraphPlot
-using Graphs
-
-function plot(g::SimpleGraph)
-	nodelabel = collect(vertices(g))
-	ctx = gplot(g,
-							layout=circular_layout,
-							nodelabel=nodelabel)
-	draw(PNG("graph2.png", 800, 600), ctx)
-end
 
 @vars x y z
 h = Kernel(:h, (z | x))

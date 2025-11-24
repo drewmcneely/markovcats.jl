@@ -1,8 +1,7 @@
-# Main entry point for the library. Mostly includes and exports.
 module MarkovCats
 using Base: show
 
-export @vars, copykernel, discardkernel, possiblewiring, Wiring, vertices
+export @vars, copykernel, discardkernel
 export Port, Kernel, KernelList, PortGraph
 
 include("dsl/types.jl")

@@ -74,23 +74,3 @@ end
 edge_indices(pg::PortGraph) =  [edge_indices(pg, e) for e in pg.edges]
 
 Graphs.SimpleGraph(pg::PortGraph) = Graphs.SimpleGraph(Graphs.Edge.(edge_indices(pg)))
-
-struct Wiring
-	outputs::Vector{Port}
-	inputs::Vector{Port}
-	wires::SimpleGraph
-end
-
-function possiblewiring(outputs::AbstractVector{<:AbstractPort}, inputs::AbstractVector{<:AbstractPort})::Wiring
-	wires = [(n_o,n_i) for (n_o, o) in enumerate(outputs) for (n_i,i) in enumerate(inputs) if wirable(o,i)]
-	graphedges = [(o, i+length(outputs)) for (o,i) in wires]
-	g = SimpleGraph(length(outputs) + length(inputs))
-	for (o,i) in graphedges
-		Graphs.add_edge!(g, o, i)
-	end
-	return Wiring(outputs, inputs, g)
-end
-
-function possiblewiring(ks::AbstractVector{<:AbstractKernel})
-	possiblewiring(outputports(ks), inputports(ks))
-end
