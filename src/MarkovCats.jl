@@ -3,7 +3,7 @@ module MarkovCats
 using Base: show
 
 export @vars, copykernel, discardkernel, possiblewiring, Wiring, vertices
-export Kernel, KernelList, PortGraph
+export Port, Kernel, KernelList, PortGraph
 
 include("dsl/types.jl")
 include("dsl/constructors.jl")
