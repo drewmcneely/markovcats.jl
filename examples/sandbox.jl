@@ -11,4 +11,4 @@ boundary_kernel = h
 inner_kernels = [g, f, copykernel(y), discardkernel(y)]
 kernel_list = KernelList(boundary_kernel, inner_kernels)
 
-kernel_list |> PortGraph |>  MarkovCats.plot
+kernel_list |> PortGraph |>  matching |> MarkovCats.plot

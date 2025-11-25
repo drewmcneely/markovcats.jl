@@ -3,6 +3,7 @@ using Base: show
 
 export @vars, copykernel, discardkernel
 export Port, Kernel, KernelList, PortGraph
+export matching
 
 include("dsl/types.jl")
 include("dsl/constructors.jl")

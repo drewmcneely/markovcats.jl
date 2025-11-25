@@ -1,5 +1,6 @@
 using Graphs
 using GraphsMatching
+using HiGHS
 
 # """
 # Wires get sent from outputs to inputs.
@@ -74,3 +75,33 @@ end
 edge_indices(pg::PortGraph) =  [edge_indices(pg, e) for e in pg.edges]
 
 Graphs.SimpleGraph(pg::PortGraph) = Graphs.SimpleGraph(Graphs.Edge.(edge_indices(pg)))
+
+function matching(pg::PortGraph)
+	graph = SimpleGraph(pg)
+	edges = Graphs.edges(graph)
+	#weights = Dict([(e, 1.0) for e in edges])
+	n = nv(graph)
+	weights = zeros(n, n)
+	for e in edges
+		weights[src(e), dst(e)] = 1.0
+	end
+	matching = maximum_weight_matching(graph, HiGHS.Optimizer, weights)
+
+	outputs = pg.outputs
+	inputs  = pg.inputs
+	boundary_inputs  = pg.boundary_inputs
+	boundary_outputs = pg.boundary_outputs
+
+	matched_pg = PortGraph(outputs,
+												 inputs,
+												 boundary_inputs,
+												 boundary_outputs)
+
+	for i in 1:length(matching.mate)
+		add_edge!(matched_pg,
+							nodes(pg)[i],
+							nodes(pg)[matching.mate[i]])
+	end
+	return matched_pg
+end
+
