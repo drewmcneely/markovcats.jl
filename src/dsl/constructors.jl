@@ -4,7 +4,7 @@ import Base: |
 |(t::Var, s::Var)                 = [t] | [s]
 |(t::Vector{Var}, s::Var)         =  t  | [s]
 |(t::Var, s::Vector{Var})         = [t] |  s
-Signature(t)                      =  t  | [ ]
+Signature(t)                      =  t  | Var[]
 
 # Kernel constructors
 

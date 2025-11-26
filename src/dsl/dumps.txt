@@ -1,0 +1,67 @@
+f(x)
+Expr
+  head: Symbol call
+  args: Array{Any}((2,))
+    1: Symbol f
+    2: Symbol x
+
+
+f(x,y)
+Expr
+  head: Symbol call
+  args: Array{Any}((3,))
+    1: Symbol f
+    2: Symbol x
+    3: Symbol y
+
+f(x|y)
+Expr
+  head: Symbol call
+  args: Array{Any}((2,))
+    1: Symbol f
+    2: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol |
+        2: Symbol x
+        3: Symbol y
+
+f(x|y,z)
+Expr
+  head: Symbol call
+  args: Array{Any}((3,))
+    1: Symbol f
+    2: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol |
+        2: Symbol x
+        3: Symbol y
+    3: Symbol z
+
+f(x,y|z)
+Expr
+  head: Symbol call
+  args: Array{Any}((3,))
+    1: Symbol f
+    2: Symbol x
+    3: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol |
+        2: Symbol y
+        3: Symbol z
+
+f(x,y|z,t)
+Expr
+  head: Symbol call
+  args: Array{Any}((4,))
+    1: Symbol f
+    2: Symbol x
+    3: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol |
+        2: Symbol y
+        3: Symbol z
+    4: Symbol t

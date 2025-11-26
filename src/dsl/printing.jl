@@ -13,4 +13,4 @@ function Base.show(io::IO, sig::Signature)
 	print(io, string("( ", target, " | ", source, " )"))
 end
 
-Base.show(io::IO, p::Port) = print(io, p.var, p.kernel.name)
+Base.show(io::IO, p::Port) = print(io, p.var, "_", p.kernel.name)

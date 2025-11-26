@@ -1,8 +1,9 @@
 module MarkovCats
 using Base: show
 
-export @vars, copykernel, discardkernel
-export Port, Kernel, KernelList, PortGraph
+export @kernel, @kerneldef, @vars
+export copykernel, discardkernel
+export Port, Kernel, KernelList, PortGraph, Signature
 export matching
 
 include("dsl/types.jl")
