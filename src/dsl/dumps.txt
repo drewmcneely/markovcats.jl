@@ -65,3 +65,67 @@ Expr
         2: Symbol y
         3: Symbol z
     4: Symbol t
+
+
+py(y) = sum(x)( f(y|x) * px(x) ) ))
+Expr
+  head: Symbol =
+  args: Array{Any}((2,))
+    1: Expr
+      head: Symbol call
+      args: Array{Any}((2,))
+        1: Symbol py
+        2: Symbol y
+    2: Expr
+      head: Symbol block
+      args: Array{Any}((2,))
+        1: LineNumberNode
+          line: Int64 1
+          file: Symbol none
+        2: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Expr
+              head: Symbol call
+              args: Array{Any}((2,))
+                1: Symbol sum
+                2: Symbol x
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol *
+                2: Expr
+                3: Expr
+
+
+sum(x,z)( f(y|x) * px(x) )
+Expr
+  head: Symbol call
+  args: Array{Any}((2,))
+    1: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol sum
+        2: Symbol x
+        3: Symbol z
+    2: Expr
+      head: Symbol call
+      args: Array{Any}((3,))
+        1: Symbol *
+        2: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Symbol f
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol |
+                2: Symbol y
+                3: Symbol x
+        3: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Symbol px
+            2: Symbol x
+
+

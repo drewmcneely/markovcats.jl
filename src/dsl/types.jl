@@ -13,7 +13,8 @@ struct Signature
 end
 
 abstract type AbstractPort end
-abstract type AbstractKernel end
+abstract type ParsedExpr end
+abstract type AbstractKernel <: ParsedExpr end
 
 # TODO: Add show method for ports. Make it contain info on what kernel it's attached to and its var
 Base.@kwdef mutable struct Port <: AbstractPort
@@ -37,3 +38,25 @@ struct KernelList
 	boundary_kernel::Kernel
 	inner_kernels::Vector{Kernel}
 end
+
+
+struct AssignmentExpr <: ParsedExpr
+	lhs::Kernel
+	rhs::ParsedExpr
+end
+
+struct SumExpr <: ParsedExpr
+	vars::Vector{Symbol}
+	body::ParsedExpr
+end
+
+struct ProductExpr <: ParsedExpr
+	factors::Vector{ParsedExpr}
+end
+
+struct KernelExpr <: ParsedExpr
+	name::Symbol
+	signature::Array{Union{Symbol, Expr}}
+end
+
+

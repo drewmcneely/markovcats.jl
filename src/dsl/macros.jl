@@ -11,18 +11,6 @@ macro vars(names...)
 	Expr(:block, assigns...)
 end
 
-function has_one_A_rest_B(v::AbstractVector{Any}, ::Type{A}, ::Type{B}) where {A,B}
-	nA = 0
-	for x in v
-		if x isa A
-			nA += 1
-		elseif !(x isa B)
-			return false
-		end
-	end
-	return nA == 1
-end
-
 macro kernel(exp)
 	@assert exp.head == :call		# exp is f(x,y,z)
 	kname = exp.args[1]					# :f

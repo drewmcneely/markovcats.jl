@@ -37,5 +37,9 @@ function discardkernel(var::Var)
 	Kernel(name, sig)
 end
 
+
+
+
+
 # sum(var::Var) = discard(var)
 # sum = discard
