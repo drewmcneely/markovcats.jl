@@ -25,5 +25,5 @@ using MarkovCats
 # exp = :( py(y) =  sum(x)(f(y|x) * px(x)) )
 # dump(exp)
 
-exp = :( py(y) = sum(x)(f(y|x) * px(x) ))
-dump(parse_expr(exp))
+exp = :( h(z|x) = sum(y)(g(z|y) * f(y|x) ))
+exp |> parse_expr |> flatten |> count_duplicates |> PortGraph |> matching |> MarkovCats.plot

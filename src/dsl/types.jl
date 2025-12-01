@@ -24,8 +24,11 @@ Base.@kwdef mutable struct Port <: AbstractPort
 	index::Int
 end
 
+@enum KernelType named counit comultiplication
+
 struct Kernel <: AbstractKernel
 	name::Symbol
+	kerneltype::KernelType
 	inputports::Vector{Port}
 	outputports::Vector{Port}
 end
@@ -33,11 +36,6 @@ ports(k::Kernel) = vcat(k.inputports, k.outputports)
 signature(k::Kernel) = [p.var for p in k.inputports] | [p.var for p in k.outputports]
 inputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.inputports).(ks)...)
 outputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.outputports).(ks)...)
-
-struct KernelList
-	boundary_kernel::Kernel
-	inner_kernels::Vector{Kernel}
-end
 
 
 struct AssignmentExpr <: ParsedExpr
@@ -54,9 +52,13 @@ struct ProductExpr <: ParsedExpr
 	factors::Vector{ParsedExpr}
 end
 
-struct KernelExpr <: ParsedExpr
-	name::Symbol
-	signature::Array{Union{Symbol, Expr}}
-end
+# struct KernelExpr <: ParsedExpr
+# 	name::Symbol
+# 	signature::Array{Union{Symbol, Expr}}
+# end
 
+struct KernelList
+	boundary_kernel::Kernel
+	inner_kernels::Vector{Kernel}
+end
 

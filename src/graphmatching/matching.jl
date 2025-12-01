@@ -76,7 +76,7 @@ edge_indices(pg::PortGraph) =  [edge_indices(pg, e) for e in pg.edges]
 
 Graphs.SimpleGraph(pg::PortGraph) = Graphs.SimpleGraph(Graphs.Edge.(edge_indices(pg)))
 
-function matching(pg::PortGraph)
+function matching(pg::PortGraph)::PortGraph
 	graph = SimpleGraph(pg)
 	edges = Graphs.edges(graph)
 	#weights = Dict([(e, 1.0) for e in edges])
