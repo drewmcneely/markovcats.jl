@@ -113,3 +113,33 @@ macro kerneleq(exp)
 	return 
 end
 
+"""
+The following is the proper pipeline order from an exp to a PortGraph
+exp :: Expr |> parse_expr					:: ParsedExpr
+						|> flatten						:: KernelList
+						|> count_duplicates		:: KernelList
+						|> PortGraph					:: PortGraph
+						|> matching						:: PortGraph
+						|> MarkovCats.plot		:: Nothing
+"""
+
+macro kernelassignments(block)
+    # Validate it's a begin block
+    @assert block.head == :block
+
+    kernel_assignments = filter(x -> !(x isa LineNumberNode), block.args)
+
+    kls = [pipeline_kl(ex) for ex in kernel_assignments]
+		pgs = [pipeline_pg(kl) for kl in kls]
+		names = [kl.boundary_kernel.name for kl in kls]
+
+		pg_assignments = [:( $(esc(name)) = $(pg) ) for (name, pg) in zip(names, pgs)]
+		Expr(:block, pg_assignments...)
+end
+
+function pipeline_kl(ex::Expr)::KernelList
+	return ex |> parse_expr |> flatten |> count_duplicates
+end
+function pipeline_pg(kl::KernelList)::PortGraph
+	return kl |> PortGraph |> matching
+end

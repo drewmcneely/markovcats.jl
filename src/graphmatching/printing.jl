@@ -60,7 +60,7 @@ function bipartite_coords(g::SimpleGraph, n_left::Int)
     return locs_x, locs_y
 end
 
-function plot(pg::PortGraph)
+function plot(pg::PortGraph, filename::String)
     # 1. Underlying simple graph from your constructor
     g = SimpleGraph(pg)
 
@@ -93,5 +93,5 @@ function plot(pg::PortGraph)
 				edgelinewidth = 3.0,
     )
 
-    draw(PNG("portgraph.png", 1000, 600), ctx)
+    draw(PNG(filename * ".png", 1000, 600), ctx)
 end

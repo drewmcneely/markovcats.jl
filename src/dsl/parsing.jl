@@ -173,7 +173,7 @@ function count_duplicates(kl::KernelList)::KernelList
 	# copykernels = Kernel[]
 	for v in unique(vars)
 		numcopies = countvar(v) - 1
-		println("copy_", v, " * ", numcopies)
+		# println("copy_", v, " * ", numcopies)
 		push!(inner_kernels, repeat([copykernel(v)], numcopies)...)
 	end
 

@@ -25,5 +25,11 @@ using MarkovCats
 # exp = :( py(y) =  sum(x)(f(y|x) * px(x)) )
 # dump(exp)
 
-exp = :( h(z|x) = sum(y)(g(z|y) * f(y|x) ))
-exp |> parse_expr |> flatten |> count_duplicates |> PortGraph |> matching |> MarkovCats.plot
+@kernelassignments begin
+	h(z|x) = sum(y)(g(z|y) * f(y|x) )
+	# k(x,y|a) = sum(b)( g(x|b) * h(y|b) * f(b|a) )
+	py(y) = sum(x)( f(y|x) * px(x) )
+end
+
+plot(h, "compose_plot")
+plot(py, "ck_plot")
