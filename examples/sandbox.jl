@@ -3,32 +3,18 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 
 using MarkovCats
 
-# @vars x y z
-# 
-# @kerneldef h(z|x)
-# @kerneldef g(z|y)
-# @kerneldef f(y|x)
-# 
-# boundary_kernel = h
-# inner_kernels = [g, f, copykernel(y), discardkernel(y)]
-# kernel_list = KernelList(boundary_kernel, inner_kernels)
-# 
-# kernel_list |> PortGraph |>  matching |> MarkovCats.plot
-
-
-# exp = :( sum(x)( f(y|x) * px(x) ) )
-# dump(exp)
-# 
-# exp = :( py(y) =  f(y|x) * px(x) )
-# dump(exp)
-# 
-# exp = :( py(y) =  sum(x)(f(y|x) * px(x)) )
-# dump(exp)
-
 @kernelassignments begin
-	h(z|x) = sum(y)(g(z|y) * f(y|x) )
+	# Kernel Composition
+	h(z|x) = sum(y)( g(z|y) * f(y|x) )
+
+	# Chapman-Kolmogorov Equation
+	p_y(y) = sum(x)( f(y|x) * p_x(x) )
+
+	# Conditional Independence
 	# k(x,y|a) = sum(b)( g(x|b) * h(y|b) * f(b|a) )
-	py(y) = sum(x)( f(y|x) * px(x) )
+	# ^^^ This breaks the LP solver ^^^
+	# I think because b shows up 3 times, requiring 2 comultipliers
+	# which can create matching cycles
 end
 
 plot(h, "compose_plot")
