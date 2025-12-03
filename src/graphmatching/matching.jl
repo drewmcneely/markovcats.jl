@@ -2,6 +2,14 @@ using Graphs
 using GraphsMatching
 using HiGHS
 
+import MathOptInterface as MOI
+
+function silent_highs()
+    opt = HiGHS.Optimizer()
+    MOI.set(opt, MOI.Silent(), true)
+    return opt
+end
+
 # """
 # Wires get sent from outputs to inputs.
 # This is with exception to the outer blackboxed kernel,
@@ -85,7 +93,7 @@ function matching(pg::PortGraph)::PortGraph
 	for e in edges
 		weights[src(e), dst(e)] = 1.0
 	end
-	matching = maximum_weight_matching(graph, HiGHS.Optimizer, weights)
+	matching = maximum_weight_matching(graph, silent_highs, weights)
 
 	outputs = pg.outputs
 	inputs  = pg.inputs

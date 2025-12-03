@@ -18,4 +18,4 @@ using MarkovCats
 end
 
 plot(h, "compose_plot")
-plot(py, "ck_plot")
+plot(p_y, "ck_plot")

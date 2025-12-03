@@ -1,10 +1,14 @@
 module MarkovCats
 using Base: show
 
+# Macros
 export @kernel, @kerneldef, @vars, @kernelassignments
+# IR Constructors
+export Var, Port, Kernel, KernelList, PortGraph, Signature
 export copykernel, discardkernel
-export Port, Kernel, KernelList, PortGraph, Signature
-export matching, parse_expr, flatten, count_duplicates
+export AssignmentExpr, SumExpr, ProductExpr
+# Pipeline components
+export parse_expr, flatten, count_duplicates, matching
 export plot
 
 include("dsl/types.jl")

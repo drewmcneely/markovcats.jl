@@ -14,6 +14,11 @@ function parse_expr(ex::Expr)::ParsedExpr
 	end
 end
 
+"""
+AssignmentExpr :	Kernel '=' SumExpr | ProductExpr
+CK Example:				py(y) = sum(x)( f(y|x) * px(x) )
+Ind. Example:			pxy(x,y) = px(x) * py(y)
+"""
 function is_assignment(ex::Expr)
 	return ex.head == :(=)
 end
@@ -30,8 +35,12 @@ function parse_assignment(ex::Expr)::AssignmentExpr
 end
 
 """
-Notation looks like
-sum(Vars)( Body )
+SumExpr : 'sum(' Vars ')(' Body ')'
+Vars		: Var [',' Var]*
+Body		: (ProductExpr | SumExpr | Kernel)
+
+Example: sum(x)( f(y|x) * p(x) )
+
 This means its a "curried" call
 Expr
   head: Symbol call
@@ -56,6 +65,8 @@ function parse_sum(ex::Expr)::SumExpr
 end
 
 """
+ProductExpr	: Kernel ('*' Kernel)+
+Example: f(y|x) * p(x)
 dump(:( a*b*c ))
 Expr
   head: Symbol call

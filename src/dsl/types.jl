@@ -52,11 +52,6 @@ struct ProductExpr <: ParsedExpr
 	factors::Vector{ParsedExpr}
 end
 
-# struct KernelExpr <: ParsedExpr
-# 	name::Symbol
-# 	signature::Array{Union{Symbol, Expr}}
-# end
-
 struct KernelList
 	boundary_kernel::Kernel
 	inner_kernels::Vector{Kernel}
