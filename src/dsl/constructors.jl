@@ -25,6 +25,8 @@ function Kernel(name::Symbol, kerneltype::KernelType, signature::Signature)
 	return k
 end
 
+Kernel(name::Symbol, signature::Signature) = Kernel(name, named, signature)
+
 function copykernel(var::Var)
 	name = Symbol(:copy_, var.name)
 	kerneltype = comultiplication

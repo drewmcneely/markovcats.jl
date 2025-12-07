@@ -9,7 +9,7 @@ export copykernel, discardkernel
 export AssignmentExpr, SumExpr, ProductExpr
 # Pipeline components
 export parse_expr, flatten, count_duplicates, matching
-export plot
+export plot, equivalent_portgraphs, portgraph_signature
 
 include("dsl/types.jl")
 include("dsl/constructors.jl")

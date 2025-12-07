@@ -76,6 +76,12 @@ function nodes(pg::PortGraph)
 			 pg.inputs,
 			 pg.boundary_outputs)
 end
+left_nodes(pg::PortGraph) = vcat(pg.boundary_inputs, pg.outputs)
+right_nodes(pg::PortGraph) = vcat(pg.inputs, pg.boundary_outputs)
+
+
+
+# Helper functions for Graphs.SimpleGraph
 node_index(pg::PortGraph, p::Port)::Int = findfirst( (x -> x==p).(nodes(pg)) )
 function edge_indices(pg::PortGraph, e::Tuple{Port, Port})
 	(node_index(pg, e[1]) , node_index(pg, e[2]))
@@ -83,6 +89,17 @@ end
 edge_indices(pg::PortGraph) =  [edge_indices(pg, e) for e in pg.edges]
 
 Graphs.SimpleGraph(pg::PortGraph) = Graphs.SimpleGraph(Graphs.Edge.(edge_indices(pg)))
+
+# Helper functions and structs for equality testing
+function portgraph_signature(pg::PortGraph)
+	edges = pg.edges
+	labeled_edges = (e -> (string(e[1]), string(e[2]))).(edges)
+	sort!(labeled_edges)
+	return labeled_edges
+end
+function equivalent_portgraphs(a::PortGraph, b::PortGraph)
+	return portgraph_signature(a) == portgraph_signature(b)
+end
 
 function matching(pg::PortGraph)::PortGraph
 	graph = SimpleGraph(pg)
@@ -106,9 +123,11 @@ function matching(pg::PortGraph)::PortGraph
 												 boundary_outputs)
 
 	for i in 1:length(matching.mate)
-		add_edge!(matched_pg,
-							nodes(pg)[i],
-							nodes(pg)[matching.mate[i]])
+		if nodes(pg)[i] in left_nodes(pg)
+			add_edge!(matched_pg,
+								nodes(pg)[i],
+								nodes(pg)[matching.mate[i]])
+		end
 	end
 	return matched_pg
 end

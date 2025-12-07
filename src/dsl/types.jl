@@ -35,7 +35,9 @@ end
 ports(k::Kernel) = vcat(k.inputports, k.outputports)
 signature(k::Kernel) = [p.var for p in k.inputports] | [p.var for p in k.outputports]
 inputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.inputports).(ks)...)
+inputports(k::Kernel) = inputports([k])
 outputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.outputports).(ks)...)
+outputports(k::Kernel) = outputports([k])
 
 
 struct AssignmentExpr <: ParsedExpr
