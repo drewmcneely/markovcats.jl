@@ -3,6 +3,10 @@ using MarkovCats
 
 include("fixtures.jl")
 
+@testset "KernelExpr Unit Test" begin
+
+end
+
 @testset "Full Pipeline Kernel Composition" begin
 	fixed_exp = Fixtures.Compose.exp
 	fixed_unmatched_portgraph = Fixtures.Compose.unmatched_pg

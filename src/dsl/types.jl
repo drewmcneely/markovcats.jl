@@ -39,21 +39,6 @@ inputports(k::Kernel) = inputports([k])
 outputports(ks::AbstractVector{<:AbstractKernel}) = vcat((k -> k.outputports).(ks)...)
 outputports(k::Kernel) = outputports([k])
 
-
-struct AssignmentExpr <: ParsedExpr
-	lhs::Kernel
-	rhs::ParsedExpr
-end
-
-struct SumExpr <: ParsedExpr
-	vars::Vector{Symbol}
-	body::ParsedExpr
-end
-
-struct ProductExpr <: ParsedExpr
-	factors::Vector{ParsedExpr}
-end
-
 struct KernelList
 	boundary_kernel::Kernel
 	inner_kernels::Vector{Kernel}
