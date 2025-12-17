@@ -1,3 +1,5 @@
+abstract type ParsedExpr end
+
 struct AssignmentExpr <: ParsedExpr
 	lhs::KernelExpr
 	rhs::ParsedExpr

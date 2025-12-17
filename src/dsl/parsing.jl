@@ -1,3 +1,5 @@
+# Many parts of this file are deprecated. Possibly the whole thing.
+
 # TODO: Clean this up. Maybe make a second Expr type for the signature.
 function parse_kernel_kerneltype(exp::Expr)::Kernel
 	kname = exp.args[1]					# :f
@@ -59,6 +61,9 @@ function flatten(ex::AssignmentExpr)::KernelList
 	return KernelList(ex.lhs, flatten(ex.rhs))
 end
 
+""" Count duplicate variables in a KernelList in order to generate copies.
+Deprecated.
+"""
 function count_duplicates(kl::KernelList)::KernelList
 	inner_kernels = copy(kl.inner_kernels)
 	named_kernels = filter(k -> k.kerneltype == named, inner_kernels)
