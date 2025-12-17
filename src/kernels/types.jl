@@ -22,7 +22,7 @@ end
 """
 struct Var
 	name::Symbol
-	statespace::Union{Nothing, StateSpace} = nothing
+	# statespace::Union{Nothing, StateSpace} = nothing
 end
 
 """

@@ -137,7 +137,6 @@ are on the left side of the pipe and inputs are on the right
 """
 function parse_kernel(exp::Expr)::KernelExpr
 	kname = exp.args[1]					# :f
-	kerneltype = named
 	sigexp = exp.args[2:end]		# [:x, :y, :z]
 
 	# Case f(Vars)
@@ -163,12 +162,12 @@ function parse_kernel(exp::Expr)::KernelExpr
 		@assert pipe_right isa Symbol
 
 		for sym in sigexp[1:call_index-1]
-			push!(target, Var(sym))
+			push!(target, sym)
 		end
-		push!(target, Var(pipe_left))
-		push!(source, Var(pipe_right))
+		push!(target, pipe_left)
+		push!(source, pipe_right)
 		for sym in sigexp[call_index+1:end]
-			push!(source, Var(sym))
+			push!(source, sym)
 		end
 
 		return KernelExpr(kname, target, source)
@@ -176,3 +175,5 @@ function parse_kernel(exp::Expr)::KernelExpr
 		error("Unexpected syntax in signature body of kernel")
 	end
 end
+
+
