@@ -1,8 +1,28 @@
+# TODO: Implement the following overall structure
+# So here's my idea. We currently 
+#
+# TODO: Make type ProductDiagram in wiringdiagrams/?
+# It's basically a list of kernels with edges that connect ports.
+# constructor ProductDiagram(::Vector{NamedKernel})
+# wire every output port to CopyKernel(var(port), count(matching_input_kernels))
+# wire the first output of the copy to the boundary output
+# wire the rest of the copy outputs to the matching inputs
+# then do the same for dangling inputs:
+# find the matching dangling inputs, and wire them to a copy with a count of that match. Then wire the input of that copy to the boundary input.
+#
+# Then pass that to MarkovCats.WiringDiagram
+#
+#
+struct StateSpace
+	name::Symbol
+end
+
 # TODO: Implement a StateSpace/Category Object type and give Vars a field of that type
 """ Represents a variable in a kernel expression
 """
 struct Var
 	name::Symbol
+	statespace::Union{Nothing, StateSpace} = nothing
 end
 
 """
@@ -17,10 +37,11 @@ end
 
 abstract type Kernel end
 
+@enum PortDirection input output
 Base.@kwdef mutable struct Port
 	var::Var
 	kernel::Union{Nothing, Kernel} = nothing
-	kind::Symbol	# :input or :output
+	direction::PortDirection
 	index::Int
 end
 
@@ -33,19 +54,19 @@ struct NamedKernel <: Kernel
 	inputports::Vector{Port}
 	outputports::Vector{Port}
 end
-ports(k::NamedKernel) = vcat(k.inputports, k.outputports)
-signature(k::NamedKernel) = [p.var for p in k.inputports] | [p.var for p in k.outputports]
-inputports(ks::AbstractVector{<:Kernel}) = vcat((k -> k.inputports).(ks)...)
-inputports(k::Kernel) = inputports([k])
-outputports(ks::AbstractVector{<:Kernel}) = vcat((k -> k.outputports).(ks)...)
-outputports(k::Kernel) = outputports([k])
+
+struct CopyKernel <: Kernel
+	var::Var
+end
 
 struct DiscardKernel <: Kernel
 	var::Var
 end
 
+# TODO: KernelList with an LHS and RHS is likely not needed anymore. Reuse as a single list? Or should I just work with Vector{Kernel}s?
 struct KernelList
 	boundary_kernel::Kernel
 	inner_kernels::Vector{Kernel}
 end
 
+# TODO? make IR at this level
