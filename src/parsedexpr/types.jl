@@ -18,6 +18,7 @@ end
 
 struct ProductExpr <: ParsedExpr
 	factors::Vector{ParsedExpr}
+	ProductExpr(factors) = new(factors |> ProductDependencyGraph |> topological_sort)
 end
 
 struct ProductDependencyGraph

@@ -20,17 +20,6 @@ outs(expr::ProductExpr)::Vector{Symbol} = vcat(outs.(expr.factors)...)
 
 # Variable Semantics Checkers/Assertions
 
-# This is the key “single-assignment” invariant that makes your wiring unambiguous.
-# C. Dependency relation and “strict partial order”
-# 
-# Define an edge i → j iff outs(i) ∩ ins(j) ≠ ∅.
-# 
-#     No self edge
-#     If any label ∈ outs(i) is also in ins(i), you already caught it in (1). So this is redundant once (1) is enforced.
-#     Graph is acyclic
-#     Run a topological sort on that dependency graph.
-#     If topo sort fails, you have a directed cycle (exactly your “no cycles” condition).
-# 
 # D. Boundary labels (optional, but super useful)
 # 
 # Given the boxes, you can classify labels into:
@@ -81,7 +70,7 @@ has_duplicates(syms::Vector{Symbol}) = length(unique(syms)) != length(syms)
 
 
 """
-    topological_sort(g::MyGraph) -> Vector{MyType}
+    topological_sort(g::ProductDependencyGraph) -> Vector{ParsedExpr}
 
 Returns a topological ordering of `g.nodes`.
 
@@ -89,7 +78,7 @@ Throws an error if:
 - an edge references a node not in `g.nodes`, or
 - the graph contains a directed cycle (i.e. no topological order exists).
 """
-function topological_sort(g::ProductDependencyGraph)
+function topological_sort(g::ProductDependencyGraph)::Vector{ParsedExpr}
     # Quick membership structure for validation
     node_set = Set(g.nodes)
 
@@ -146,7 +135,7 @@ function topological_sort(g::ProductDependencyGraph)
                 push!(remaining, v)
             end
         end
-        error("Graph has a cycle (no topological order). Nodes still with indegree>0: $(remaining)")
+        error("Expression has circular dependencies! Nodes still with indegree>0: $(remaining)")
     end
 
     return order

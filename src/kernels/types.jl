@@ -68,5 +68,3 @@ struct KernelList
 	boundary_kernel::Kernel
 	inner_kernels::Vector{Kernel}
 end
-
-# TODO? make IR at this level

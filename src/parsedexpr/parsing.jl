@@ -175,5 +175,3 @@ function parse_kernel(exp::Expr)::KernelExpr
 		error("Unexpected syntax in signature body of kernel")
 	end
 end
-
-

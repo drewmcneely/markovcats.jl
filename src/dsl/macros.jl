@@ -122,7 +122,6 @@ exp :: Expr |> parse_expr					:: ParsedExpr
 						|> matching						:: PortGraph
 						|> MarkovCats.plot		:: Nothing
 """
-
 macro kernelassignments(block)
     # Validate it's a begin block
     @assert block.head == :block

@@ -7,9 +7,6 @@ using Base: show
 # export Var, Port, Kernel, KernelList, PortGraph, Signature
 # export copykernel, discardkernel
 # export AssignmentExpr, SumExpr, ProductExpr
-# # Pipeline components
-# export parse_expr, flatten, count_duplicates, matching
-# export plot, equivalent_portgraphs, portgraph_signature
 
 # dsl/ exports
 # parsedexpr/ exports

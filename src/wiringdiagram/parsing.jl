@@ -1,10 +1,5 @@
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
 
-mcopy(sym::Symbol, n::Int) = implicit_mcopy(Ports(sym), n)
-mcopy(sym::Symbol) = mcopy(sym, 2)
-m_id(sym::Symbol)  = mcopy(sym, 1)
-mdisc(sym::Symbol) = mcopy(sym, 0)
-
 function to_wiring_diagram(expr::AssignmentExpr)::WiringDiagram
 end
 
