@@ -1,4 +1,5 @@
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
+
 """ Wrapper for Catlab.WiringDiagrams.MonoidalDirected.WiringDiagram
 This is to give a clean interface that caters to the specific use case
 of parsing probability expressions into wiring diagrams in a Markov category.
@@ -41,8 +42,18 @@ function MarkovDiagram(expr::ProductExpr)
 		end
 	end
 
-	# TODO: Wire the inputs
-
+	for (input_index, input_sym) in enumerate(ins(expr))
+		inner_input_locations = findall_inputs(input_sym, expr)
+		num_copies = length(inner_input_locations)
+		copy_val = add_box!(big_diagram, mcopy(input_sym, num_copies))
+		add_wire!(big_diagram, (input_id(big_diagram), input_index) => (copy_val, 1) )
+		k = 1
+		for (box_expr, idx) in inner_input_locations
+			add_wire!(big_diagram, (copy_val, k) => (box_val[box_expr], idx))
+			k = k+1
+		end
+	end
+	return big_diagram
 end
 
 mcopy(sym::Symbol, n::Int) = implicit_mcopy(Ports(sym), n)

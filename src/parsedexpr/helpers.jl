@@ -5,18 +5,19 @@ ins(expr::AssignmentExpr)::Vector{Symbol} = ins(expr.lhs)
 outs(expr::AssignmentExpr)::Vector{Symbol} = outs(expr.lhs)
 
 ins(expr::SumExpr)::Vector{Symbol} = ins(expr.body)
-function outs(expr::SumExpr)::Vector{Symbol}
-	syms = outs(expr.body)
-	for sym in expr.vars
-		deleteat!(syms, findall(x -> x==sym, syms))
-	end
-	return syms
-end
+outs(expr::SumExpr)::Vector{Symbol} = filter( s -> !(s in expr.vars), outs(expr.body))
+# function outs(expr::SumExpr)::Vector{Symbol}
+# 	syms = outs(expr.body)
+# 	for sym in expr.vars
+# 		deleteat!(syms, findall(x -> x==sym, syms))
+# 	end
+# 	return syms
+# end
 
-# This may break the convention of the functions above, since this does not calculate ins of the boundary but instead concatenates the ins of every block in the product.
-ins(expr::ProductExpr)::Vector{Symbol} = vcat(ins.(expr.factors)...)
+ins(expr::ProductExpr)::Vector{Symbol} = filter( s -> !(s in outs(expr)),  unique(vcat(ins.(expr.factors)...)))
 outs(expr::ProductExpr)::Vector{Symbol} = vcat(outs.(expr.factors)...)
 
+findall_inputs(sym::Symbol, expr::ProductExpr)::Vector{Pair{ParsedExpr, Int}} = filter( x -> x != nothing, [sym in ins(e) ? (e, findfirst(ins(e), sym)) : nothing for e in expr.factors])
 
 # Variable Semantics Checkers/Assertions
 
@@ -36,38 +37,6 @@ has_cycle(expr::KernelExpr) = depends_on(expr, expr)
 # @assert !(has_duplicates(outs(expr))) for any ParsedExpr
 # @assert !(has_duplicates(ins(expr))) for all KernelExpr expr
 has_duplicates(syms::Vector{Symbol}) = length(unique(syms)) != length(syms)
-
-
-# function validate_boxes(boxes::Vector{Box})
-# 
-#     # Kahn topo sort
-#     q = Int[]
-#     for i in 1:n
-#         indeg[i] == 0 && push!(q, i)
-#     end
-# 
-#     topo = Int[]
-#     while !isempty(q)
-#         v = pop!(q)
-#         push!(topo, v)
-#         for w in adj[v]
-#             indeg[w] -= 1
-#             indeg[w] == 0 && push!(q, w)
-#         end
-#     end
-# 
-#     length(topo) == n || error("Cycle detected: boxes cannot be topologically ordered")
-# 
-#     # D: boundary labels (optional return values)
-#     all_ins  = Set(Iterators.flatten(b.ins for b in boxes))
-#     all_outs = Set(keys(out_owner))
-# 
-#     external_inputs  = setdiff(all_ins, all_outs)
-#     external_outputs = setdiff(all_outs, all_ins)
-# 
-#     return (topo=topo, external_inputs=external_inputs, external_outputs=external_outputs)
-# end
-
 
 """
     topological_sort(g::ProductDependencyGraph) -> Vector{ParsedExpr}
