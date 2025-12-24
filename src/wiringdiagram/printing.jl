@@ -1,7 +1,7 @@
 using Catlab.Graphics
 import Catlab.Graphics: Graphviz, GraphvizGraphs
 
-to_graphviz(d::WiringDiagram) = to_graphviz(d,
+apply_props(d::WiringDiagram) = to_graphviz(d,
   orientation=LeftToRight,
   labels=true, label_attr=:xlabel,
   node_attrs=Graphviz.Attributes(
@@ -13,8 +13,13 @@ to_graphviz(d::WiringDiagram) = to_graphviz(d,
 )
 
 function plot(d::WiringDiagram, filepath::String)
-	gv = to_graphviz(d)
+	gv = apply_props(d)
 	open(filepath, "w") do io
 		Graphviz.run_graphviz(io, gv, format="png")
 	end
+end
+
+function plot(md::MarkovDiagram, filepath::String)
+	plot(md.wiring_diagram, filepath)
+	return
 end

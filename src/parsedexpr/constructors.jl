@@ -4,7 +4,7 @@
 # 	return ProductDependencyGraph(nodes, edges)
 # end
 
-function ProductDependencyGraph(nodes::Vector{ParsedExpr})
+function ProductDependencyGraph(nodes::AbstractVector{<:ParsedExpr})
 	edges = unique([a => b for a in nodes for b in nodes if depends_on(b, a)])
 	return ProductDependencyGraph(nodes, edges)
 end

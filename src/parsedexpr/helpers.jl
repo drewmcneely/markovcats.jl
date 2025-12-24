@@ -17,7 +17,7 @@ outs(expr::SumExpr)::Vector{Symbol} = filter( s -> !(s in expr.vars), outs(expr.
 ins(expr::ProductExpr)::Vector{Symbol} = filter( s -> !(s in outs(expr)),  unique(vcat(ins.(expr.factors)...)))
 outs(expr::ProductExpr)::Vector{Symbol} = vcat(outs.(expr.factors)...)
 
-findall_inputs(sym::Symbol, expr::ProductExpr)::Vector{Pair{ParsedExpr, Int}} = filter( x -> x != nothing, [sym in ins(e) ? (e, findfirst(ins(e), sym)) : nothing for e in expr.factors])
+findall_inputs(sym::Symbol, expr::ProductExpr)::Vector{Tuple{<:ParsedExpr, Int}} = filter( x -> x != nothing, [sym in ins(e) ? (e, findfirst((x -> x==sym).(ins(e)))) : nothing for e in expr.factors])
 
 # Variable Semantics Checkers/Assertions
 

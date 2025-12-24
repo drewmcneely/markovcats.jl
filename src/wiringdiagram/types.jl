@@ -1,11 +1,11 @@
-using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
+using Catlab.WiringDiagrams.DirectedWiringDiagrams
 
 """ Wrapper for Catlab.WiringDiagrams.MonoidalDirected.WiringDiagram
 This is to give a clean interface that caters to the specific use case
 of parsing probability expressions into wiring diagrams in a Markov category.
 """
 struct MarkovDiagram
-	wiring_diagram::WiringDiagram
+	wiring_diagram::AbstractBox
 end
 
 function MarkovDiagram(expr::KernelExpr)
@@ -15,7 +15,7 @@ end
 
 function MarkovDiagram(expr::ProductExpr)
 	factor_mds = [MarkovDiagram(k) for k in expr.factors]
-	factor_wds = [md.wiring_diagram for md in mds]
+	factor_wds = [md.wiring_diagram for md in factor_mds]
 	big_diagram = WiringDiagram(ins(expr), outs(expr))
 	box_vals = [add_box!(big_diagram, diagram) for diagram in factor_wds]
 
@@ -56,7 +56,7 @@ function MarkovDiagram(expr::ProductExpr)
 	return big_diagram
 end
 
-mcopy(sym::Symbol, n::Int) = implicit_mcopy(Ports(sym), n)
+mcopy(sym::Symbol, n::Int) = implicit_mcopy(Ports([sym]), n)
 mcopy(sym::Symbol) = mcopy(sym, 2)
 m_id(sym::Symbol)  = mcopy(sym, 1)
 mdisc(sym::Symbol) = mcopy(sym, 0)
