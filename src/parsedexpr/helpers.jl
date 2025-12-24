@@ -6,13 +6,6 @@ outs(expr::AssignmentExpr)::Vector{Symbol} = outs(expr.lhs)
 
 ins(expr::SumExpr)::Vector{Symbol} = ins(expr.body)
 outs(expr::SumExpr)::Vector{Symbol} = filter( s -> !(s in expr.vars), outs(expr.body))
-# function outs(expr::SumExpr)::Vector{Symbol}
-# 	syms = outs(expr.body)
-# 	for sym in expr.vars
-# 		deleteat!(syms, findall(x -> x==sym, syms))
-# 	end
-# 	return syms
-# end
 
 ins(expr::ProductExpr)::Vector{Symbol} = filter( s -> !(s in outs(expr)),  unique(vcat(ins.(expr.factors)...)))
 outs(expr::ProductExpr)::Vector{Symbol} = vcat(outs.(expr.factors)...)

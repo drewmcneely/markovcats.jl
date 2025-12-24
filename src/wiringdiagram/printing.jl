@@ -18,8 +18,3 @@ function plot(d::WiringDiagram, filepath::String)
 		Graphviz.run_graphviz(io, gv, format="png")
 	end
 end
-
-function plot(md::MarkovDiagram, filepath::String)
-	plot(md.wiring_diagram, filepath)
-	return
-end

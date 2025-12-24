@@ -3,5 +3,5 @@
 # This then turns into a ParsedExpr, whose structure can be found in src/parsedexpr/types.jl
 
 function markov_pipeline(expr::Expr)
-	return expr |> parse_expr |> MarkovDiagram
+	return expr |> parse_expr |> WiringDiagram
 end
