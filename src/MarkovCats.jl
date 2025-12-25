@@ -1,7 +1,7 @@
 module MarkovCats
 using Base: show
 
-export markov_pipeline, plot
+export markov_pipeline, plot, morphism, full_diagram
 
 include("parsedexpr/types.jl")
 include("parsedexpr/printing.jl")

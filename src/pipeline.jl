@@ -1,7 +1,11 @@
-# The following provides an outline of the pipeline
-# A morphism starts its life as an Expr
-# This then turns into a ParsedExpr, whose structure can be found in src/parsedexpr/types.jl
+using Catlab.Theories: FreeCartesianCategory
+using Catlab.WiringDiagramExpressions
 
-function markov_pipeline(expr::Expr)
-	return expr |> parse_expr |> WiringDiagram
+markov_pipeline(expr::Expr) = expr |> parse_expr |> WiringDiagram
+
+function morphism(expr::Expr) 
+	d = markov_pipeline(expr)
+	return to_hom_expr(FreeCartesianCategory, d)
 end
+
+full_diagram(expr::Expr) = expr |> morphism |> to_wiring_diagram

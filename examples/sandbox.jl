@@ -3,6 +3,7 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 
 using MarkovCats
 
-expr = :( j(z,a,x|c,d) = sum(y,b)( g(y,z|x,c) * f(x|c) * k(b|x,a,c) * h(a|y) ) )
-md = markov_pipeline(expr)
-plot(md, "test-product.png")
+# expr = :( j(z,a,x,b|c,d) = sum(y)( g(y,z|x,c) * f(x|c) * k(b|x,a,c) * h(a|y) ) )
+expr = :( py(y) = sum(x)( f(y|x) * px(x) ) )
+diagram = full_diagram(expr)
+plot(diagram, "test.png")
