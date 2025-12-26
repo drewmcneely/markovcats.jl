@@ -11,7 +11,8 @@ include("parsedexpr/parsing.jl")
 
 include("wiringdiagram/constructors.jl")
 include("wiringdiagram/printing.jl")
+include("wiringdiagram/theory.jl")
 
-include("pipeline.jl")
+include("pipeline2.jl")
 
 end # module
