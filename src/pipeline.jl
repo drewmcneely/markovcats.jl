@@ -1,11 +1,7 @@
 using Catlab.Theories: FreeCartesianCategory
 using Catlab.WiringDiagramExpressions
 
-markov_pipeline(expr::Expr) = expr |> parse_expr |> WiringDiagram
+WiringDiagramExpressions.to_wiring_diagram(expr::Expr) = expr |> parse_expr |> WiringDiagram
 
-function morphism(expr::Expr) 
-	d = markov_pipeline(expr)
-	return to_hom_expr(FreeCartesianCategory, d)
-end
-
-full_diagram(expr::Expr) = expr |> morphism |> to_wiring_diagram
+to_cart_expr(expr::Expr) = to_hom_expr(FreeCartesianCategory, to_wiring_diagram(expr))
+to_markov_expr(expr::Expr) = to_hom_expr(FreeMarkovCategory, to_wiring_diagram(expr))
