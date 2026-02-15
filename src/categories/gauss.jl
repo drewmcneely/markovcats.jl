@@ -22,21 +22,24 @@ state(v) = 𝓝(v, zeros(Matrix{Float64}, length(v), length(v)))
 affine(A, b) = GaussianKernel(A, b, zeros(Matrix{Float64}, length(b), length(b)))
 linear(A) = affine(A, zeros(Vector{Float64}, size(A, 1)))
 
-@instance ThMarkovCategory{VectorSpace, GaussianKernel} begin
-    function mcopy(X)
-        n = X.dimension
-        IX = Matrix{Float64}(LinearAlgebra.I, n, n)
-        linear(vcat(IX, IX))
-    end
-    delete(X) = linear( Matrix{Float64}(undef, 0, X.dimension))
+@instance ThMarkovCategory{GaussStateSpace, GaussianKernel} begin
 
-    function braid(X, Y)
-        IX = Matrix{Float64}(LinearAlgebra.I, X.dimension, X.dimension)
-        IY = Matrix{Float64}(LinearAlgebra.I, Y.dimension, Y.dimension)
-        Z1 = zeros(Matrix{Float64}, X.dimension, Y.dimension)
-        Z2 = Z1'
-        linear([Z1 IX; IY Z2])
+    dom(f) = size(f.map, 2)
+    codom(f) = size(f.map, 1)
+
+    id(X) = linear(Matrix{Float64}(LinearAlgebra.I, X.dimension, X.dimension))
+
+    function compose(f, g)
+        F, G = f.map, g.map
+        μf, μg = f.mean, g.mean
+        Σf, Σg = f.covariance, g.covariance
+        M = G * F
+        μ = G * μf + μg
+        Σ = G * Σf * G' + Σg
+        GaussianKernel(M, μ, Σ)
     end
+
+    munit() = GaussStateSpace(0)
 
     otimes(X::GaussStateSpace, Y::GaussStateSpace) = GaussStateSpace(X.dimension + Y.dimension)
 
@@ -50,20 +53,20 @@ linear(A) = affine(A, zeros(Vector{Float64}, size(A, 1)))
         GaussianKernel(M, μ, Σ)
     end
 
-    munit() = GaussStateSpace(0)
-
-    function compose(f, g)
-        F, G = f.map, g.map
-        μf, μg = f.mean, g.mean
-        Σf, Σg = f.covariance, g.covariance
-        M = G * F
-        μ = G * μf + μg
-        Σ = G * Σf * G' + Σg
-        GaussianKernel(M, μ, Σ)
+    function braid(X, Y)
+        IX = Matrix{Float64}(LinearAlgebra.I, X.dimension, X.dimension)
+        IY = Matrix{Float64}(LinearAlgebra.I, Y.dimension, Y.dimension)
+        Z1 = zeros(Matrix{Float64}, X.dimension, Y.dimension)
+        Z2 = Z1'
+        linear([Z1 IX; IY Z2])
     end
 
-    id(X) = linear(Matrix{Float64}(LinearAlgebra.I, X.dimension, X.dimension))
+    function mcopy(X)
+        n = X.dimension
+        IX = Matrix{Float64}(LinearAlgebra.I, n, n)
+        linear(vcat(IX, IX))
+    end
 
-    dom(f) = size(f.map, 2)
-    codom(f) = size(f.map, 1)
+    delete(X) = linear( Matrix{Float64}(undef, 0, X.dimension))
+
 end
