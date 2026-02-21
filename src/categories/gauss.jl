@@ -10,17 +10,22 @@ struct GaussianKernel
     covariance::Matrix{Float64}
     function GaussianKernel(map, mean, covariance)
         (codom, dom) = size(map)
-        @assert length(mean) = codom
-        @assert size(covariance) = (codom, codom)
+        @assert length(mean) == codom
+        @assert size(covariance) == (codom, codom)
+        new(map, mean, covariance)
     end
 end
 
-𝓝(μ,Σ) = GaussianKernel( Matrix{Float64}(undef, 0, length(μ)), μ, Σ)
+𝓝(μ,Σ) = GaussianKernel( Matrix{Float64}(undef, length(μ), 0), μ, Σ)
 Gaussian = 𝓝
 
 state(v) = 𝓝(v, zeros(Matrix{Float64}, length(v), length(v)))
 affine(A, b) = GaussianKernel(A, b, zeros(Matrix{Float64}, length(b), length(b)))
 linear(A) = affine(A, zeros(Vector{Float64}, size(A, 1)))
+
+# vvv ADDED BY CLAUDE vvv
+hom_to_obs(k::GaussianKernel) = (GaussStateSpace(size(k.map, 2)), GaussStateSpace(size(k.map, 1)))
+# ^^^ ADDED BY CLAUDE ^^^
 
 @instance ThMarkovCategory{GaussStateSpace, GaussianKernel} begin
 

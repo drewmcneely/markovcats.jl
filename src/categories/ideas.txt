@@ -1,0 +1,26 @@
+Okay the issue I'm going to run into with the object GAT:
+
+I currently have it set to just be the additive monoid of integers.
+This will be an issue when it comes to conditioning because I'll need to keep track of which variables to condition on.
+
+For instance, say I have :( cond(y|x) = p(y,x) / sum(y)( p(y,x) ) )
+And say y.dimension = 2, and x.dimension = 3
+Without conditioning, these dimensions don't matter at all because the calculation is all done via string diagrams.
+But when I take the conditional, I need to find the codom(rhs) and condition on those variables.
+So in this case, with my current simple monoid, the codom calculation would just return 3.
+So how would it know what to condition on? It could just end up conditioning on y1, y2, and x1.
+
+So I need a way to keep track of objects. My current thought is to have Ob = List{Tuple{Symbol, Int}}
+This way the output will look like [(:y, 2), (:x, 3)] and I will be conditioning on [(:x, 3)]
+I will need my Hom types to keep track of their input and output variable symbols. But that's okay.
+
+The tough thing from here though is nesting. What if I want the variable z = (x,y)? I'm debating on just not allowing thisfunctionality for now. In fact, I've decided. So we'll just have mempty = [] and otimes = vcat.
+
+Next, I need to go about conditioning on an unordered subset of this list.
+Well actually, okay codom(::HomExpr)::ObExpr, which means my...
+
+okay say I'm conditioning on a morphism with codom = [(a,2), (b,4), (c,3), (x,5), (y,8), (z,1) ]
+and I want to condition on rhsob = [y,b,c]
+first, I need to order it based on lhsob. So we have lhsob = [a,b,c,x,y,z], and we'll do like a search or something to order rhsob to get rhsob = [b,c,y]
+
+Then, I'd say we should.....oh. Perfect idea. Actually scrap the ordering. Do a braid on the output. That way we only have to compute the left sided conditional.
