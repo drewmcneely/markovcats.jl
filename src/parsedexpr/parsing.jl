@@ -1,5 +1,7 @@
 function parse_expr(ex::Expr)::ParsedExpr
-	if ex |> is_assignment
+  if ex |> is_block
+    return parse_block(ex)
+  elseif ex |> is_assignment
 		return parse_assignment(ex)
 	elseif ex |> is_sum
 		return parse_sum(ex)
@@ -14,6 +16,18 @@ function parse_expr(ex::Expr)::ParsedExpr
 	end
 end
 
+""" Parse an Expr into a BlockExpr.
+The allowable syntax for a BlockExpr is simply a begin...end block of AssignmentExprs.
+"""
+function parse_block(ex::Expr)::BlockExpr
+    statements = filter(x -> !(x isa LineNumberNode), ex.args)
+    for statement in statements
+        @assert statement |> is_assignment
+    end
+    return BlockExpr([parse_expr(s) for s in statements])
+end
+is_block(ex::Expr) = ex.head == :block
+
 """ Parse an Expr into an AssignmentExpr.
 
 Grammar:
@@ -25,6 +39,7 @@ Graph State				pxy(x,y) = f(y|x) * px(x)
 Independence			pxy(x,y) = px(x) * py(y)
 """
 function parse_assignment(ex::Expr)::AssignmentExpr
+  @assert ex.args[1] |> is_kernel
 	lhs = parse_kernel(ex.args[1])
 	unparsed_rhs = ex.args[2]
 	if unparsed_rhs isa Expr && unparsed_rhs.head == :block
@@ -35,33 +50,36 @@ function parse_assignment(ex::Expr)::AssignmentExpr
 	parsed_rhs = parse_expr(unparsed_rhs)
 	return AssignmentExpr(lhs, parsed_rhs)
 end
-function is_assignment(ex::Expr)
-	return ex.head == :(=)
-end
+is_assignment(ex::Expr) = ex.head == :(=)
 
 """ Parse an Expr into a SumExpr
 Grammar:
-SumExpr : 'sum(' Symbols ')(' Body ')'
-Symbols	: Symbol [',' Symbol]*
+SumExpr : 'sum(' Vars ')(' Body ')'
+Vars	  : Symbol [',' Symbol]*
 Body		: (ProductExpr | SumExpr | KernelExpr)
 
 Examples:
 Chapman-Kolmog.		sum(x)( f(y|x) * p(x) )
 Marginalization		sum(x)( p(x,y) )
 
-Expected Expr sum(Vars)(Body) is parsed
-by Julia as a nested call:
-Expr
-  head: Symbol call
-  args: Array{Any}((2,))
-    1: Expr
-      head: Symbol call
-      args: Array{Any}((2,))
-        1: Symbol sum
-        2: Symbol Vars
-    2: Symbol Body
+We also support 'Σ' as an alias for 'sum'
+Example:          Σ(x)( f(y|x) * p(x) )
 """
 function parse_sum(ex::Expr)::SumExpr
+  # Expected Expr sum(Vars)(Body) is parsed
+  # by Julia as a nested call:
+  # Expr
+  #   head: Symbol call
+  #   args: Array{Any}((2,))
+  #     1: Expr
+  #       head: Symbol call
+  #       args: Array{Any}((2,))
+  #         1: Symbol sum
+  #         2: Symbol Vars
+  #     2: Symbol Body
+  # 
+  # The following two lines handle that
+
 	vars = ex.args[1].args[2:end]
 	unparsed_body = ex.args[2]
 	return SumExpr(vars, parse_expr(unparsed_body))
@@ -70,7 +88,8 @@ function is_sum(ex::Expr)
 	if (ex.head != :call) return false end
 	if !(ex.args[1] isa Expr) return false end
 	if (ex.args[1].head != :call) return false end
-	return ex.args[1].args[1] == :sum
+  sum_head = ex.args[1].args[1]
+  return (sum_head == :sum || sum_head == :Σ)
 end
 
 """ Parse an Expr into a ProductExpr
@@ -97,13 +116,7 @@ function parse_product(ex::Expr)::ProductExpr
 	parsed_factors = parse_expr.(unparsed_factors)
 	return ProductExpr(parsed_factors)
 end
-function is_product(ex::Expr)
-	return ex.args[1] == :*
-end
-
-function is_kernel(ex::Expr)
-	return ex.head == :call
-end
+is_product(ex::Expr) = ex.args[1] == :*
 
 # This returns true if v has one element of type A and all other elements have type B
 function has_one_A_rest_B(v::AbstractVector{Any}, ::Type{A}, ::Type{B}) where {A,B}
@@ -118,12 +131,12 @@ function has_one_A_rest_B(v::AbstractVector{Any}, ::Type{A}, ::Type{B}) where {A
 	return nA == 1
 end
 
-""" Parse an Expr into a KernelExp
+""" Parse an Expr into a KernelExpr
 Grammar:
 Kernel :			Name '(' Signature ')'
-Signature:		Symbols | Conditional
-Symbols:			Symbol (',' Symbol)+
-Conditional:	Symbols '|' Symbols
+Signature:		Vars | Conditional
+Vars:			    Symbol (',' Symbol)+
+Conditional:	Vars '|' Vars
 
 Examples:
 Univariate:			p(x)
@@ -131,7 +144,7 @@ Multivariate:		p(x,y)
 Kernel:					f(y|x)
 Multi Kernel:		f(x,y|a,b)
 
-The Name(Symbols) case represents a kernel with no inputs
+The Name(Vars) case represents a kernel with no inputs
 The Name(Conditional) case represents a kernel whose outputs
 are on the left side of the pipe and inputs are on the right
 """
@@ -175,3 +188,4 @@ function parse_kernel(exp::Expr)::KernelExpr
 		error("Unexpected syntax in signature body of kernel")
 	end
 end
+is_kernel(ex::Expr) = ex.head == :call

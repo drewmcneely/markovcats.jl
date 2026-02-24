@@ -102,3 +102,6 @@ function topological_sort(g::ProductDependencyGraph)::Vector{ParsedExpr}
 
     return order
 end
+
+nameof(expr::AssignmentExpr) = nameof(expr.lhs)
+nameof(expr::KernelExpr) = expr.name

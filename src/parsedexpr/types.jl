@@ -25,3 +25,8 @@ struct ProductDependencyGraph
 	nodes::Vector{ParsedExpr}
 	edges::Vector{Pair{ParsedExpr, ParsedExpr}}
 end
+
+struct BlockExpr <: ParsedExpr
+    statements::Vector{AssignmentExpr}
+end
+
