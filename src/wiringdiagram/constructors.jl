@@ -2,16 +2,20 @@ using Catlab.WiringDiagrams.DirectedWiringDiagrams
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
 import Catlab.WiringDiagrams.DirectedWiringDiagrams: WiringDiagram
 
-function WiringDiagram(expr::BlockExpr)
+function build_wiring_diagrams(expr::BlockExpr)::Dict{Symbol, WiringDiagram}
     symbol_table = Dict{Symbol, WiringDiagram}()
     for assignment in expr.statements
         diagram = WiringDiagram(assignment, symbol_table)
-        push!(symbol_table, nameof(assignment) => diagram)
+        symbol_table[nameof(assignment)] = diagram
     end
-    return symbol_table[nameof(expr.statements[end])]
+    #return symbol_table[nameof(expr.statements[end])]
+    return symbol_table
 end
 
-function WiringDiagram(expr::KernelExpr, symbol_table::Dict{Symbol, WiringDiagram} = Dict()) 
+WiringDiagram(expr::BlockExpr) = build_wiring_diagrams(expr)[nameof(expr.statements[end])]
+
+function WiringDiagram(expr::KernelExpr,
+        symbol_table::Dict{Symbol, WiringDiagram} = Dict()) 
     if haskey(symbol_table, expr.name)
         return symbol_table[expr.name]
     else
@@ -19,7 +23,11 @@ function WiringDiagram(expr::KernelExpr, symbol_table::Dict{Symbol, WiringDiagra
     end
 end
 
-function WiringDiagram(expr::AssignmentExpr, symbol_table::Dict{Symbol, WiringDiagram} = Dict())
+build_wiring_diagrams(expr::AssignmentExpr) = Dict(nameof(expr) => WiringDiagram(expr))
+
+
+function WiringDiagram(expr::AssignmentExpr,
+        symbol_table::Dict{Symbol, WiringDiagram} = Dict())
   # FIXME: This code does not check symbol_table for the LHS, and does not update symbol_table
   # if the LHS has an overwrite. As written, I expect overwrites to just not happen.
 	d = WiringDiagram(ins(expr), outs(expr))
@@ -76,6 +84,7 @@ function WiringDiagram(expr::ProductExpr, symbol_table::Dict{Symbol, WiringDiagr
 	all_ins = vcat([ins(factor) for factor in expr.factors]...)
 
 	# wire the outputs
+  # TODO: Clean up the nested for loops
 	for factor in expr.factors
 		for (idx, sym) in enumerate(outs(factor))
 			out_location =	findfirst( (x -> x==sym).(outs(expr)) )

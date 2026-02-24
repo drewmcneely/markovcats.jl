@@ -23,10 +23,6 @@ state(v) = 𝓝(v, zeros(Matrix{Float64}, length(v), length(v)))
 affine(A, b) = GaussianKernel(A, b, zeros(Matrix{Float64}, length(b), length(b)))
 linear(A) = affine(A, zeros(Vector{Float64}, size(A, 1)))
 
-# vvv ADDED BY CLAUDE vvv
-hom_to_obs(k::GaussianKernel) = (GaussStateSpace(size(k.map, 2)), GaussStateSpace(size(k.map, 1)))
-# ^^^ ADDED BY CLAUDE ^^^
-
 @instance ThMarkovCategory{GaussStateSpace, GaussianKernel} begin
 
     dom(f) = size(f.map, 2)

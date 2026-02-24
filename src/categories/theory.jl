@@ -1,23 +1,14 @@
 using Catlab.Theories
 
-""" Theory of *Markov categories*
+""" Theory of *Markov categories* without conditionals
 """
 @theory ThMarkovCategory <: ThMonoidalCategoryWithDiagonals begin
-  # pair(f::(A → B), g::(A → C))::(A → (B ⊗ C)) ⊣ [A::Ob, B::Ob, C::Ob]
-  # proj1(A::Ob, B::Ob)::((A ⊗ B) → A)
-  # proj2(A::Ob, B::Ob)::((A ⊗ B) → B)
-
-  # # Definitions of pairing and projections.
-  # pair(f,g) == Δ(C)⋅(f⊗g) ⊣ [A::Ob, B::Ob, C::Ob, f::(C → A), g::(C → B)]
-  # proj1(A,B) == id(A)⊗◊(B) ⊣ [A::Ob, B::Ob]
-  # proj2(A,B) == ◊(A)⊗id(B) ⊣ [A::Ob, B::Ob]
-  
-  # Naturality axioms.
+  # Naturality axiom.
   f⋅◊(B) == ◊(A) ⊣ [A::Ob, B::Ob, f::(A → B)]
 end
 
 
-""" Syntax for a free cartesian category.
+""" Syntax for a free Markov category.
 
 In this syntax, the pairing and projection operations are defined using
 duplication and deletion, and do not have their own syntactic elements.
@@ -26,11 +17,11 @@ This convention could be dropped or reversed.
 @symbolic_model FreeMarkovCategory{ObExpr,HomExpr} ThMarkovCategory begin
   otimes(A::Ob, B::Ob) = associate_unit(new(A,B), munit)
   otimes(f::Hom, g::Hom) = associate(new(f,g))
-  compose(f::Hom, g::Hom) = associate_unit(new(f,g; strict=true), id)
 
-  # pair(f::Hom, g::Hom) = compose(mcopy(dom(f)), otimes(f,g))
-  # proj1(A::Ob, B::Ob) = otimes(id(A), delete(B))
-  # proj2(A::Ob, B::Ob) = otimes(delete(A), id(B))
+  # TODO: In order to be able to uncomment the below line, I have to figure out
+  # how to specify associated composition in the instance.
+  # Is it a matter of just defining a composition chain by a fold?
+  ## compose(f::Hom, g::Hom) = associate_unit(new(f,g; strict=true), id)
 end
 
 show_latex(io::IO, expr::HomExpr{:mcopy}; kw...) =
