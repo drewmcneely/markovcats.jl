@@ -1,7 +1,7 @@
 # MarkovCats.jl
-**A compositional toolkit and embedded DSL for discrete probability and Bayesian filtering in Julia**
+**A macro-based embedded DSL for expressing Markov category string diagrams, translating between uncertainty representations, and computing Bayesian inferencing in Julia**
 
-MarkovCats.jl is a Julia library for expressing probabilistic models in a compact, algebraic, and highly compositional style. It provides an embedded DSL for discrete probability, backed by a semantic layer grounded in Markov categories. The frontend lets users write familiar probabilistic expressions; the backend interprets them in a chosen uncertainty representation, enabling eventual support for multiple algorithmic backends (e.g., discrete Bayes filters, Kalman filters, Gaussian message passing).
+MarkovCats.jl is a Julia library for expressing various probabilistic models using the syntax for discrete probability. It provides a macro-based embedded DSL for doing so, backed by a semantic layer grounded in Markov categories. The frontend lets users write familiar probabilistic expressions; the backend interprets them in a chosen uncertainty representation, enabling eventual support for multiple algorithmic backends such as discrete Bayes filters, Kalman filters, Bayesian smoothing, and Gaussian message passing.
 
 Users write *probability*; the library handles the categorical machinery behind the scenes.
 
@@ -9,7 +9,7 @@ Users write *probability*; the library handles the categorical machinery behind 
 
 ## Background and Motivation
 
-This project is connected with the ideas developed in  
+This project is connected with the ideas developed in 
 **[Hidden Markov Models and the Bayes Filter in Categorical Probability](https://arxiv.org/abs/2401.14669)**.
 
 MarkovCats.jl is also a spiritual successor to **[girypy](https://github.com/drewmcneely/girypy)**, an early Python prototype. This Julia library reimplements and extends those ideas with a macro-based syntactic frontend and a modular backend architecture.
