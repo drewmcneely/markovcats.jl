@@ -5,6 +5,9 @@ using MarkovCats: outputports, inputports, Var, Kernel, copykernel, discardkerne
 
 exp = :( h(z|x) = sum(y)( g(z|y) * f(y|x) ) )
 
+!a
+!b
+
 x = Var(:x)
 y = Var(:y)
 z = Var(:z)

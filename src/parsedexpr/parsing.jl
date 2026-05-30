@@ -1,18 +1,25 @@
+using MLStyle
+
+@data ParsedExpr begin
+	KernelExpr(name::Symbol, inputs::Vector{Symbol}, outputs::Vector{Symbol})
+	AssignmentExpr(lhs::KernelExpr, rhs::ParsedExpr)
+	SumExpr(vars::Vector{Symbol}, body::ParsedExpr)
+	ProductExpr(factors::Vector{ParsedExpr})
+	ProductDependencyGraph(nodes::Vector{ParsedExpr}, edges::Vector{Pair{ParsedExpr, ParsedExpr}})
+	BlockExpr(statements::Vector{AssignmentExpr})
+end
+
+include("constructors.jl")
+include("helpers.jl")
+
 function parse_expr(ex::Expr)::ParsedExpr
-  if ex |> is_block
-    return parse_block(ex)
-  elseif ex |> is_assignment
-		return parse_assignment(ex)
-	elseif ex |> is_sum
-		return parse_sum(ex)
-	elseif ex |> is_product
-		return parse_product(ex)
-	elseif ex |> is_kernel
-		return parse_kernel(ex)
-	else
-		error("The following expression did not match any defined cases\n",
-					ex,
-					)
+	@match ex begin
+		Expr(:block, args...) => parse_block(ex)
+		Expr(:(=), args...) => parse_assignment(ex)
+		Expr(:+, args...) => parse_sum(ex)
+		Expr(_, [:*, args...]) => parse_product(ex)
+		Expr(:call, args...) => parse_kernel(ex)
+		_ => error("$(dump(ex))")
 	end
 end
 
@@ -22,11 +29,10 @@ The allowable syntax for a BlockExpr is simply a begin...end block of Assignment
 function parse_block(ex::Expr)::BlockExpr
     statements = filter(x -> !(x isa LineNumberNode), ex.args)
     for statement in statements
-        @assert statement |> is_assignment
+        @assert statement.head == :(=)
     end
     return BlockExpr([parse_expr(s) for s in statements])
 end
-is_block(ex::Expr) = ex.head == :block
 
 """ Parse an Expr into an AssignmentExpr.
 
@@ -50,7 +56,6 @@ function parse_assignment(ex::Expr)::AssignmentExpr
 	parsed_rhs = parse_expr(unparsed_rhs)
 	return AssignmentExpr(lhs, parsed_rhs)
 end
-is_assignment(ex::Expr) = ex.head == :(=)
 
 """ Parse an Expr into a SumExpr
 Grammar:
@@ -116,7 +121,6 @@ function parse_product(ex::Expr)::ProductExpr
 	parsed_factors = parse_expr.(unparsed_factors)
 	return ProductExpr(parsed_factors)
 end
-is_product(ex::Expr) = ex.args[1] == :*
 
 # This returns true if v has one element of type A and all other elements have type B
 function has_one_A_rest_B(v::AbstractVector{Any}, ::Type{A}, ::Type{B}) where {A,B}
@@ -188,4 +192,3 @@ function parse_kernel(exp::Expr)::KernelExpr
 		error("Unexpected syntax in signature body of kernel")
 	end
 end
-is_kernel(ex::Expr) = ex.head == :call

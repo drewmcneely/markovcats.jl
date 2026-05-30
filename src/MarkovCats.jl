@@ -10,8 +10,6 @@ export 𝓝, Gaussian, state, affine, linear
 
 include("parsedexpr/types.jl")
 include("parsedexpr/printing.jl")
-include("parsedexpr/constructors.jl")
-include("parsedexpr/helpers.jl")
 include("parsedexpr/parsing.jl")
 
 include("wiringdiagram/constructors.jl")
