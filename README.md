@@ -23,6 +23,7 @@ You can play around with the builtin types and functions in the repl, or run the
 
 This project is connected with the ideas developed in 
 **[Hidden Markov Models and the Bayes Filter in Categorical Probability](https://arxiv.org/abs/2401.14669)**.
+In particular, it implements the formal syntax proposed by Fritz in [Notation 2.8 of his synthetic paper](https://arxiv.org/abs/1908.07021).
 
 MarkovCats.jl is also a spiritual successor to **[girypy](https://github.com/drewmcneely/girypy)**, an early Python prototype. This Julia library reimplements and extends those ideas with a macro-based syntactic frontend and a modular backend architecture.
 
@@ -149,16 +150,6 @@ will produce:
 - or any other filtering algorithm supported by the chosen uncertainty model.
 
 Users write equations; MarkovCats.jl handles the interpretation.
-
----
-
-## Installation
-
-```julia
-] add MarkovCats
-```
-
-(*Update once the package is registered.*)
 
 ---
 
