@@ -3,7 +3,19 @@
 
 MarkovCats.jl is a Julia library for expressing various probabilistic models using the syntax for discrete probability. It provides a macro-based embedded DSL for doing so, backed by a semantic layer grounded in Markov categories. The frontend lets users write familiar probabilistic expressions; the backend interprets them in a chosen uncertainty representation, enabling eventual support for multiple algorithmic backends such as discrete Bayes filters, Kalman filters, Bayesian smoothing, and Gaussian message passing.
 
-Users write *probability*; the library handles the categorical machinery behind the scenes.
+---
+
+## Installation and Usage
+
+Clone this repository, and make sure you have the latest version of Julia installed.
+Navigate to the root and start the `julia` repl.
+Enter **Pkg mode** (Press `]`) and type
+```
+activate .
+instantiate
+```
+
+You can play around with the builtin types and functions in the repl, or run the provided early example by navigating to `examples/` and typing `julia sandbox.jl`.
 
 ---
 
