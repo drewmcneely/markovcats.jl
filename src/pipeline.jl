@@ -13,9 +13,22 @@ function evaluate_markov_expr(::Type{ObType}, ::Type{HomType},
     functor((ObType, HomType), markov_expr; terms=terms)
 end
 
+"""
+dictmap :: (v->w) -> Dict{k,v} -> Dict{k,w}
+dictmap is a functorial map for dicts
+"""
 dictmap(f, d::Dict) = Dict(k => f(v) for (k,v) in d)
 
-"""Run a block expression written in pipe notation given a generator dict
+"""
+Run a block expression written in pipe notation given a generator dict
+The first argument, Type{ObType}, expects the name of the type eg. GaussStateSpace
+The second argument, Type{HomType}, expects the name of the type eg. GaussianKernel
+The third argument is the expression of the program, such as :(py(y) = sum(x)(f(y,x)))
+The fourth argument is a dictionary of generators, that is, the map of symbols to concrete instances
+For instance, this could be Dict(:f => 𝓝([0 0], [1 0; 0 1]))
+
+This returns a dict of the resultant environment, mapping symbols to results, eg.
+Dict(
 """
 function run_markov_program(
         ::Type{ObType},
@@ -23,10 +36,15 @@ function run_markov_program(
         expr::Expr,
         generators::Dict{Symbol, HomType})::Dict{Symbol, HomType} where {ObType, HomType}
 
-    diagrams = expr |> parse_expr |> build_wiring_diagrams
+    diagrams = expr |> parse_expr |> build_wiring_diagrams # ::Dict{Symbol, WiringDiagram}
     cart_exprs = dictmap(v -> to_hom_expr(FreeCartesianCategory, v), diagrams)
     diagrams2  = dictmap(to_wiring_diagram, cart_exprs)
     hom_exprs  = dictmap(v -> to_hom_expr(FreeMarkovCategory, v), diagrams2)
+    # This is a bad workaround to get a normalized wiring diagram.
+    # It goes Expr -> WiringDiagram -> HomExpr{FreeCartesianCategory} -> WiringDiagram -> HomeExpr{FreeMarkovCategory}
+    # Either the map to CartExpr or to the second WD does the normalization.
+    # diagrammap = (v -> to_hom_expr(FreeCartesianCategory, v)) |> to_wiring_diagram |> (v -> to_hom_expr(FreeMarkovCategory, v))
+    # hom_exprs = dictmap(diagrammap, diagrams)
     return dictmap(e -> evaluate_markov_expr(ObType, HomType, e, generators), hom_exprs)
 
 end
