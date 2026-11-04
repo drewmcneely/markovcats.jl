@@ -15,6 +15,7 @@ include("fixtures.jl")
                                 expr_block,
                                 gen_map)
     @test result == expected_result
+end
 
 # @testset "KernelExpr Unit Test" begin
 # 

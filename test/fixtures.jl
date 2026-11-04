@@ -1,6 +1,6 @@
 module Fixtures
 
-module Compose
+module Integration
 using MarkovCats: outputports, inputports, Var, Kernel, copykernel, discardkernel, KernelList, PortGraph, Port, add_edge!, matching
 
 exp = :( h(z|x) = sum(y)( g(z|y) * f(y|x) ) )

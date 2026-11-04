@@ -1,8 +1,8 @@
 module MarkovCats
 using Base: show
 
-export markov_pipeline, plot, morphism, full_diagram
-export to_wiring_diagram, to_cart_expr, to_markov_expr, run_markov_program
+export plot
+export to_wiring_diagram, run_markov_program
 export FreeMarkovCategory
 
 export GaussStateSpace, GaussianKernel
