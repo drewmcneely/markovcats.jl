@@ -1,0 +1,16 @@
+Notes from my call with Marius
+
+Exact inference algorithms
+https://en.wikipedia.org/wiki/Variable_elimination
+
+Works with factors:
+	Two operations:
+		Factor product -- Like the kronecker product
+		Elimination -- Marginalizing
+
+https://www.cambridge.org/core/books/modeling-and-reasoning-with-bayesian-networks/8A3769B81540EA93B525C4C2700C9DE6
+
+Feature: implement some kind of annotation to specify how expensive it is to run certain operations, so that the string diagram -> gatexpr parser can know what order of operations to apply
+
+Macros build functions that manipulate string diagrams
+	Because of for loops

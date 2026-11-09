@@ -7,6 +7,7 @@ export FreeMarkovCategory
 
 export GaussStateSpace, GaussianKernel
 export 𝓝, Gaussian, state, affine, linear
+export parse_cond
 
 include("parsedexpr/types.jl")
 include("parsedexpr/printing.jl")

@@ -7,6 +7,8 @@ function parse_expr(ex::Expr)::ParsedExpr
 		return parse_sum(ex)
 	elseif ex |> is_product
 		return parse_product(ex)
+  elseif ex |> is_cond
+    return parse_cond(ex)
 	elseif ex |> is_kernel
 		return parse_kernel(ex)
 	else
@@ -189,3 +191,14 @@ function parse_kernel(exp::Expr)::KernelExpr
 	end
 end
 is_kernel(ex::Expr) = ex.head == :call
+
+function parse_cond(exp::Expr)::CondExpr
+    top = parse_expr(args[2])
+    bottom = parse_expr(args[3])
+    #TODO Check that the vars in the sum are actually contained in the body
+    # Look at the SumExpr constructor
+    @assert bottom isa SumExpr
+    @assert top == bottom.body
+    return CondExpr(top, outs(bottom))
+end
+is_cond(ex::Expr) = ex.args[1] == :/
