@@ -5,14 +5,12 @@ using Catlab.WiringDiagramExpressions
 using MarkovCats
 using GATlab.SymbolicModels
 
-# expr = :( j(z,a,x,b|c,d) = sum(y)( g(y,z|x,c) * f(x|c) * k(b|x,a,c) * h(a|y) ) )
-
-# TODO: Test if the below block works
-# expr_block = :(begin
-#                    pred(xbar) = Σ(xhat)( dynamics(xbar|xhat) * prior(xhat) )
-#                    joint(xbar, y) = meas(y|xbar) * pred(xbar)
-#                end)
-
+################################################################################
+# The following is a working markov_program for composition with the CK equation
+# TODO: Implement this as an integration test
+# 
+#
+#
 expr_block = :(begin
                    py(y) = Σ(x)( f(y|x) * px(x) )
                    pz(z) = Σ(y)( g(z|y) * py(y) )
@@ -28,3 +26,10 @@ result = run_markov_program(GaussStateSpace,
                             expr_block,
                             gen_map)
 println(result)
+##############################################################################
+
+
+ex = :( bayes(x|y) = ( f(y|x) * p(x) ) / ( sum(x)(f(y|x)*p(x)) ) )
+
+cex = parse_expr(ex)
+println(cex)

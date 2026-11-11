@@ -17,6 +17,7 @@ HiGHS = "87dc4568-4c63-4d18-b0c0-bb2238e4078b"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+StructEquality = "6ec83bb0-ed9f-11e9-3b4c-2b04cb4e219c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
@@ -26,4 +27,5 @@ GraphViz = "0.2.0"
 HiGHS = "1.20.1"
 LinearAlgebra = "1.12.0"
 MathOptInterface = "1.46.0"
+StructEquality = "2.1.0"
 Test = "1.11.0"

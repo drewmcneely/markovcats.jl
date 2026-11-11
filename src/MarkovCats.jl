@@ -2,12 +2,11 @@ module MarkovCats
 using Base: show
 
 export plot
-export to_wiring_diagram, run_markov_program
+export parse_expr, to_wiring_diagram, run_markov_program
 export FreeMarkovCategory
 
 export GaussStateSpace, GaussianKernel
 export 𝓝, Gaussian, state, affine, linear
-export parse_cond
 
 include("parsedexpr/types.jl")
 include("parsedexpr/printing.jl")

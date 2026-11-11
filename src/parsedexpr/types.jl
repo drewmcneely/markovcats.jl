@@ -1,25 +1,27 @@
+using StructEquality
+
 abstract type ParsedExpr end
 
-struct KernelExpr <: ParsedExpr
+@struct_hash_equal struct KernelExpr <: ParsedExpr
   # name( outputs | inputs )
 	name::Symbol
 	outputs::Vector{Symbol}
 	inputs::Vector{Symbol}
 end
 
-struct AssignmentExpr <: ParsedExpr
+@struct_hash_equal struct AssignmentExpr <: ParsedExpr
   # lhs = rhs
 	lhs::KernelExpr
 	rhs::ParsedExpr
 end
 
-struct SumExpr <: ParsedExpr
+@struct_hash_equal struct SumExpr <: ParsedExpr
   # ∑(vars)( body )
 	vars::Vector{Symbol}
 	body::ParsedExpr
 end
 
-struct ProductExpr <: ParsedExpr
+@struct_hash_equal struct ProductExpr <: ParsedExpr
   # expr * expr
 	factors::Vector{ParsedExpr}
   # Constructor does a topological sort to check there are no cycles in the expr
@@ -32,11 +34,11 @@ struct ProductDependencyGraph
 	edges::Vector{Pair{ParsedExpr, ParsedExpr}}
 end
 
-struct BlockExpr <: ParsedExpr
+@struct_hash_equal struct BlockExpr <: ParsedExpr
     statements::Vector{AssignmentExpr}
 end
 
-struct CondExpr <: ParsedExpr
+@struct_hash_equal struct CondExpr <: ParsedExpr
     # top / bottom
     top::ParsedExpr
     # bottom::ParsedExpr

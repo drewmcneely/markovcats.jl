@@ -193,8 +193,8 @@ end
 is_kernel(ex::Expr) = ex.head == :call
 
 function parse_cond(exp::Expr)::CondExpr
-    top = parse_expr(args[2])
-    bottom = parse_expr(args[3])
+    top = parse_expr(exp.args[2])
+    bottom = parse_expr(exp.args[3])
     #TODO Check that the vars in the sum are actually contained in the body
     # Look at the SumExpr constructor
     @assert bottom isa SumExpr
