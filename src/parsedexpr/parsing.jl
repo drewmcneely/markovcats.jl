@@ -91,7 +91,7 @@ function is_sum(ex::Expr)
 	if !(ex.args[1] isa Expr) return false end
 	if (ex.args[1].head != :call) return false end
   sum_head = ex.args[1].args[1]
-  return (sum_head == :sum || sum_head == :Σ)
+  return (sum_head == :sum || sum_head == :Σ || sum_head == :∑)
 end
 
 """ Parse an Expr into a ProductExpr

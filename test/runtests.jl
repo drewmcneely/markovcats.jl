@@ -2,20 +2,22 @@ using Test
 using MarkovCats
 
 include("fixtures.jl")
+include("parsing-unit-tests.jl")
+include("integration-tests.jl")
 
-@testset "Full Pipeline Unit Test" begin
-    expr_block = Fixtures.expr_block
-    px_concrete = Fixtures.px_concrete
-    f_concrete = Fixtures.f_concrete
-    g_concrete = Fixtures.g_concrete
-    gen_map = Dict(:px => px_concrete, :f => f_concrete, :g => g_concrete)
-    expected_result = Fixtures.expected_result
-    result = run_markov_program(GaussStateSpace,
-                                GaussianKernel,
-                                expr_block,
-                                gen_map)
-    @test result == expected_result
-end
+# @testset "Full Pipeline Integration Test" begin
+#     expr_block = Fixtures.expr_block
+#     px_concrete = Fixtures.px_concrete
+#     f_concrete = Fixtures.f_concrete
+#     g_concrete = Fixtures.g_concrete
+#     gen_map = Dict(:px => px_concrete, :f => f_concrete, :g => g_concrete)
+#     expected_result = Fixtures.expected_result
+#     result = run_markov_program(GaussStateSpace,
+#                                 GaussianKernel,
+#                                 expr_block,
+#                                 gen_map)
+#     @test result == expected_result
+# end
 
 # @testset "KernelExpr Unit Test" begin
 # 
