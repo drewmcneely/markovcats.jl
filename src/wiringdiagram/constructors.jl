@@ -2,36 +2,33 @@ using Catlab.WiringDiagrams.DirectedWiringDiagrams
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
 import Catlab.WiringDiagrams.DirectedWiringDiagrams: WiringDiagram
 
-function build_wiring_diagrams(expr::BlockExpr)::Dict{Symbol, WiringDiagram}
+function build_wiring_diagrams(expr::BlockExpr)::WiringEnv
     symbol_table = Dict{Symbol, WiringDiagram}()
     for assignment in expr.statements
         diagram = WiringDiagram(assignment, symbol_table)
         symbol_table[nameof(assignment)] = diagram
     end
     #return symbol_table[nameof(expr.statements[end])]
-    return symbol_table
+    return WiringEnv(symbol_table=symbol_table)
 end
 
 WiringDiagram(expr::BlockExpr) = build_wiring_diagrams(expr)[nameof(expr.statements[end])]
 
-function WiringDiagram(expr::KernelExpr,
-        symbol_table::Dict{Symbol, WiringDiagram} = Dict()) 
-    if haskey(symbol_table, expr.name)
-        return symbol_table[expr.name]
+function WiringDiagram(expr::KernelExpr, wiringenv::WiringEnv = WiringEnv()) 
+    if haskey(wiringenv.symbol_table, expr.name)
+        return wiringenv.symbol_table[expr.name]
     else
         return Box(expr.name, expr.inputs, expr.outputs)
     end
 end
 
-build_wiring_diagrams(expr::AssignmentExpr) = Dict(nameof(expr) => WiringDiagram(expr))
+build_wiring_diagrams(expr::AssignmentExpr) = WiringEnv(symbol_table = Dict(nameof(expr) => WiringDiagram(expr)))
 
-
-function WiringDiagram(expr::AssignmentExpr,
-        symbol_table::Dict{Symbol, WiringDiagram} = Dict())
+function WiringDiagram(expr::AssignmentExpr, wiringenv::WiringEnv = WiringEnv()) 
   # FIXME: This code does not check symbol_table for the LHS, and does not update symbol_table
   # if the LHS has an overwrite. As written, I expect overwrites to just not happen.
 	d = WiringDiagram(ins(expr), outs(expr))
-	b = add_box!(d, WiringDiagram(expr.rhs, symbol_table))
+	b = add_box!(d, WiringDiagram(expr.rhs, wiringenv.symbol_table))
 
 	for i in ins(expr)
 		src = findfirst( (x -> x==i).(ins(expr.lhs)) )
@@ -52,9 +49,9 @@ function WiringDiagram(expr::AssignmentExpr,
 	return d
 end
 
-function WiringDiagram(expr::SumExpr, symbol_table::Dict{Symbol, WiringDiagram} = Dict())
+function WiringDiagram(expr::SumExpr, wiringenv::WiringEnv = WiringEnv()) 
 	d = WiringDiagram(ins(expr), outs(expr))
-	box_val = add_box!(d, WiringDiagram(expr.body, symbol_table))
+	box_val = add_box!(d, WiringDiagram(expr.body, wiringenv.symbol_table))
 
 	for i in 1:length(ins(expr))
 		add_wire!(d, (input_id(d), i) => (box_val, i))
@@ -73,8 +70,8 @@ function WiringDiagram(expr::SumExpr, symbol_table::Dict{Symbol, WiringDiagram} 
 	return d
 end
 
-function WiringDiagram(expr::ProductExpr, symbol_table::Dict{Symbol, WiringDiagram} = Dict())
-	factor_wds = [WiringDiagram(k, symbol_table) for k in expr.factors]
+function WiringDiagram(expr::ProductExpr, wiringenv::WiringEnv = WiringEnv()) 
+	factor_wds = [WiringDiagram(k, wiringenv.symbol_table) for k in expr.factors]
 	#factor_wds = [md.wiring_diagram for md in factor_mds]
 	big_diagram = WiringDiagram(ins(expr), outs(expr))
 	box_vals = [add_box!(big_diagram, diagram) for diagram in factor_wds]
