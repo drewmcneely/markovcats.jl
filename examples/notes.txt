@@ -1,0 +1,6 @@
+Write these functions as the eliminator on the natural numbers
+Handed the initial case
+Second def: we're given the previous step. We're not allowed to call the function we're defining
+Only write the normal data forms
+
+We have enough power to define these recursive structures but not enough power to define meaningless 
