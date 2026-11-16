@@ -1,8 +1,8 @@
 # Kalman Filter Example
 ## The following is ideal syntax using indexing of random variables
-pbar(x[k])          = ∑(x[k])( f(x[k] | x[k-1] ) * p(x[k-1]) )
+pbar( x[k] )        = ∑(x[k])( f(x[k] | x[k-1] ) * p(x[k-1]) )
 joint( x[k], y[k] ) = pbar( x[k] ) * g( y[k] | x[k] )
-bayes(x[k] | y[k])  = joint(x[k], y[k]) / ∑(x[k])( joint( x[k], y[k] ) )
+bayes( x[k]| y[k] ) = joint(x[k], y[k]) / ∑(x[k])( joint( x[k], y[k] ) )
 p( x[k] )           = ∑(y[k])( bayes(x[k] | y[k]) * meas( y[k] ) )
 
 ## The following is what markovcats can currently handle
