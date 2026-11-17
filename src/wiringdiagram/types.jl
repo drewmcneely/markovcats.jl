@@ -1,5 +1,17 @@
-@kwdef struct WiringEnv
-    symbol_table::Dict{Symbol, WiringDiagram} = Dict()
-    cond_inner_diagram::Dict{Symbol, Symbol} = Dict()
-    cond_outer_box::Dict{Symbol, Symbol} = Dict()
+abstract type EnvironmentEntry end
+
+const MarkovEnv = Dict{Symbol, EnvironmentEntry}
+
+struct DiagramEntry <: EnvironmentEntry
+    diagram::WiringDiagram
 end
+
+@kwdef struct ConditionalEntry <: EnvironmentEntry
+    boundary::WiringDiagram
+    inner_diagram::WiringDiagram
+    cond_vars::Vector{Symbol}
+end
+
+struct GeneratorEntry <: EnvironmentEntry
+    generator::HomType
+end where {HomType}
