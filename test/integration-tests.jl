@@ -18,7 +18,6 @@
 
     expected_result = Dict{Symbol, GaussianKernel}(:pz => GaussianKernel(Matrix{Float64}(undef, 2, 0), [20.0, 43.0], [102.0 226.0; 226.0 514.0]), :py => GaussianKernel(Matrix{Float64}(undef, 2, 0), [4.0, 7.0], [8.0 9.0; 9.0 14.0]))
 
-
     println(result)
     println(expected_result)
 

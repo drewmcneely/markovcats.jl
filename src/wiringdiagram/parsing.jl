@@ -15,18 +15,26 @@ end
 # Obsolete
 # WiringDiagram(expr::BlockExpr) = build_wiring_diagrams(expr)[nameof(expr.statements[end])]
 
-function lower(expr::KernelExpr, env::MarkovEnv = MarkovEnv())::(WiringDiagram, MarkovEnv)
+function lower(expr::KernelExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
     if haskey(env, expr.name)
-        return (env[expr.name], env)
+        return (env[expr.name].diagram, env)
     else
-        return Box(expr.name, expr.inputs, expr.outputs)
+        diagram = WiringDiagram(ins(expr), outs(expr))
+        box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
+        for (idx, sym) in enumerate(ins(expr))
+            add_wire!(diagram, (input_id(diagram), idx) => (box_id, idx))
+        end
+        for (idx, sym) in enumerate(outs(expr))
+            add_wire!(diagram, (box_id, idx) => (output_id(diagram), idx))
+        end
+        return (diagram, env)
     end
 end
 
 # Should not be needed if everything is wrapped in a begin..end block, correct..?
 # build_wiring_diagrams(expr::AssignmentExpr) = MarkovEnv(symbol_table = Dict(nameof(expr) => WiringDiagram(expr)))
 
-function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::(WiringDiagram, MarkovEnv)
+function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
   # FIXME: This code does not check environment for the LHS, and does not update environment
   # if the LHS has an overwrite. As written, I expect overwrites to just not happen.
 	diagram = WiringDiagram(ins(expr), outs(expr))
@@ -55,7 +63,7 @@ function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::(WiringDiagr
   return (diagram, output_env)
 end
 
-function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv()) 
+function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
 	diagram = WiringDiagram(ins(expr), outs(expr))
   body_box, body_env = lower(expr.body, env)
 	box_val = add_box!(diagram, body_box)
@@ -79,10 +87,10 @@ function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())
   return (diagram, merge(env, body_env))
 end
 
-function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv()) 
+function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
   
   # Copied from stackoverflow
-  # ::Vector{(WiringDiagram, MarkovEnv)} -> (Vector{WiringDiagram}, Vector{MarkovEnv})
+  # ::Vector{Tuple{WiringDiagram, MarkovEnv}} -> (Vector{WiringDiagram}, Vector{MarkovEnv})
   unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
 
   wd_env_pairs = [lower(f, env) for f in expr.factors]
@@ -131,7 +139,7 @@ function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())
   return (boundary_diagram, merge(env, merged_factor_envs))
 end
 
-function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::(WiringDiagram, MarkovEnv)
+function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
     name = gensym("cond_"*string.(outs(exp))*"_given_"*string.(ins(exp)))
     boundary = Box(name, ins(exp), outs(exp))
     (inner_diagram, inner_env) = lower(exp.top, env)

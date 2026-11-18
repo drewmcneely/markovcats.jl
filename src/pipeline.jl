@@ -36,15 +36,27 @@ function run_markov_program(
         expr::Expr,
         generators::Dict{Symbol, HomType})::Dict{Symbol, HomType} where {ObType, HomType}
 
-    diagrams = expr |> parse_expr |> build_wiring_diagrams # ::Dict{Symbol, WiringDiagram}
-    cart_exprs = dictmap(v -> to_hom_expr(FreeCartesianCategory, v), diagrams)
-    diagrams2  = dictmap(to_wiring_diagram, cart_exprs)
-    hom_exprs  = dictmap(v -> to_hom_expr(FreeMarkovCategory, v), diagrams2)
+    env = expr |> parse_expr |> MarkovEnv
+    
+    output_env = Dict{Symbol, HomType}()
+
+    for (name, entry) in env
+        if entry isa DiagramEntry
+            cart_exp = to_hom_expr(FreeCartesianCategory, entry.diagram)
+            normalized_diagram = to_wiring_diagram(cart_exp)
+            markov_exp = to_hom_expr(FreeMarkovCategory, normalized_diagram)
+            markov_result = evaluate_markov_expr(ObType, HomType, markov_exp, generators)
+            output_env[name] = markov_result
+        end
+    end
+    # cart_exprs = dictmap(v -> to_hom_expr(FreeCartesianCategory, v), diagrams)
+    # diagrams2  = dictmap(to_wiring_diagram, cart_exprs)
+    # hom_exprs  = dictmap(v -> to_hom_expr(FreeMarkovCategory, v), diagrams2)
     # This is a bad workaround to get a normalized wiring diagram.
     # It goes Expr -> WiringDiagram -> HomExpr{FreeCartesianCategory} -> WiringDiagram -> HomeExpr{FreeMarkovCategory}
     # Either the map to CartExpr or to the second WD does the normalization.
     # diagrammap = (v -> to_hom_expr(FreeCartesianCategory, v)) |> to_wiring_diagram |> (v -> to_hom_expr(FreeMarkovCategory, v))
     # hom_exprs = dictmap(diagrammap, diagrams)
-    return dictmap(e -> evaluate_markov_expr(ObType, HomType, e, generators), hom_exprs)
+    return output_env
 
 end
