@@ -1,6 +1,3 @@
-module Fixtures
-
-module Integration
 using MarkovCats: outputports, inputports, Var, Kernel, copykernel, discardkernel, KernelList, PortGraph, Port, add_edge!, matching
 
 exp = :( h(z|x) = sum(y)( g(z|y) * f(y|x) ) )
@@ -92,5 +89,3 @@ expected_result = Dict{Symbol, GaussianKernel}(:pz => GaussianKernel(Matrix{Floa
 # 
 # # Independent Kernels
 # indep_k_exp = :( pxy(x,y|a) = sum(b)( px(x|b) * py(y|b) * pb(b|a) ) )
-
-end # module
