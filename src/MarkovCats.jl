@@ -15,7 +15,7 @@ include("parsedexpr/helpers.jl")
 include("parsedexpr/parsing.jl")
 
 include("wiringdiagram/types.jl")
-include("wiringdiagram/constructors.jl")
+include("wiringdiagram/parsing.jl")
 include("wiringdiagram/printing.jl")
 
 include("categories/theory.jl")

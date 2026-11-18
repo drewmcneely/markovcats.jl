@@ -1,6 +1,5 @@
 using Catlab.WiringDiagrams.DirectedWiringDiagrams
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
-import Catlab.WiringDiagrams.DirectedWiringDiagrams: WiringDiagram
 
 function MarkovEnv(expr::BlockExpr)
     env = MarkovEnv()

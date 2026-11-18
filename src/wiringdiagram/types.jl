@@ -1,3 +1,5 @@
+using Catlab.WiringDiagrams.DirectedWiringDiagrams
+
 abstract type EnvironmentEntry end
 
 const MarkovEnv = Dict{Symbol, EnvironmentEntry}
@@ -12,6 +14,6 @@ end
     cond_vars::Vector{Symbol}
 end
 
-struct GeneratorEntry <: EnvironmentEntry
+struct GeneratorEntry{HomType} <: EnvironmentEntry
     generator::HomType
-end where {HomType}
+end
