@@ -1,5 +1,19 @@
-struct WiringEnv
-    symbol_table::Dict{Symbol, WiringDiagram}
-    cond_inner_diagram::Dict{Symbol, Symbol}
-    cond_outer_box::Dict{Symbol, Symbol}
+using Catlab.WiringDiagrams.DirectedWiringDiagrams
+
+abstract type EnvironmentEntry end
+
+const MarkovEnv = Dict{Symbol, EnvironmentEntry}
+
+struct DiagramEntry <: EnvironmentEntry
+    diagram::WiringDiagram
+end
+
+@kwdef struct ConditionalEntry <: EnvironmentEntry
+    boundary::WiringDiagram
+    inner_diagram::WiringDiagram
+    cond_vars::Vector{Symbol}
+end
+
+struct GeneratorEntry{HomType} <: EnvironmentEntry
+    generator::HomType
 end
