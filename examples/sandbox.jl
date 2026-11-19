@@ -4,32 +4,33 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 using Catlab.WiringDiagramExpressions
 using MarkovCats
 using GATlab.SymbolicModels
+using Debugger
+using MarkovCats:MarkovEnv, DiagramEntry, CondDiagramEntry, normalize_diagram, to_markov_expr
 
-################################################################################
-# The following is a working markov_program for composition with the CK equation
-# TODO: Implement this as an integration test
-# 
-#
-#
-expr_block = :(begin
-                   py(y) = Σ(x)( f(y|x) * px(x) )
-                   pz(z) = Σ(y)( g(z|y) * py(y) )
-               end)
+ex = :(begin
+            pbar1( x1 )       = ∑(x0)( f1(x1|x0) * p0(x0) )
+            joint1( x1 , y1 ) = g1(y1|x1) * pbar1( x1 )
+            bayes1( x1 | y1 ) = joint1(x1, y1) / ∑(x1)( joint1(x1, y1) )
+            p1( x1 )          = ∑(y1)( bayes1(x1 | y1) * meas(y1) )
 
-px_concrete = 𝓝([1, 2], [1 1; 1 2])
-f_concrete  = GaussianKernel([2 0; 0 2], [2, 3], [4 5; 5 6])
-g_concrete  = GaussianKernel([1 2; 3 4], [2, 3], [2 0; 0 2])
+            pbar2( x2 )       = ∑(x1)( f2(x2|x1) * p1(x1) )
+            joint2( x2 , y2 ) = g2(y2|x2) * pbar2( x2 )
+            bayes2( x2 | y2 ) = joint2(x2, y2) / ∑(x2)( joint2(x2, y2) )
+            p2( x2 )          = ∑(y2)( bayes2(x2 | y2) * meas(y2) )
+       end)
 
-gen_map = Dict(:px => px_concrete, :f => f_concrete, :g => g_concrete)
-result = run_markov_program(GaussStateSpace,
-                            GaussianKernel,
-                            expr_block,
-                            gen_map)
-println(result)
-##############################################################################
+markov_env = ex |> parse_expr |> MarkovEnv
 
-
-ex = :( bayes(x|y) = ( f(y|x) * p(x) ) / ( sum(x)(f(y|x)*p(x)) ) )
-
-cex = parse_expr(ex)
-println(cex)
+# println(wiring_diagrams)
+for (name, entry) in markov_env
+    if entry isa DiagramEntry
+        println(name, ": ", to_markov_expr(entry.diagram))
+    # elseif entry isa CondDiagramEntry
+    #     plot(entry.boundary, string("boundary.png"))
+    #     plot(entry.inner_diagram, string("insides.png"))
+    else
+        println(name, ":")
+        println("\tboundary: ", to_markov_expr(entry.boundary))
+        println("\tinnards: ", to_markov_expr(entry.inner_diagram))
+    end
+end

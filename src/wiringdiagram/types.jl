@@ -8,7 +8,7 @@ struct DiagramEntry <: EnvironmentEntry
     diagram::WiringDiagram
 end
 
-@kwdef struct ConditionalEntry <: EnvironmentEntry
+@kwdef struct CondDiagramEntry <: EnvironmentEntry
     boundary::WiringDiagram
     inner_diagram::WiringDiagram
     cond_vars::Vector{Symbol}
@@ -17,3 +17,8 @@ end
 struct GeneratorEntry{HomType} <: EnvironmentEntry
     generator::HomType
 end
+
+struct HomExprEntry <: EnvironmentEntry
+    exp::HomExpr
+end
+

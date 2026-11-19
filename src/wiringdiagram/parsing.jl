@@ -1,38 +1,43 @@
 using Catlab.WiringDiagrams.DirectedWiringDiagrams
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
 
+function Base.convert(::Type{WiringDiagram}, box::Box)
+    diagram = WiringDiagram(box.input_ports, box.output_ports)
+    box_id = add_box!(diagram, box)
+    for (idx, sym) in enumerate(box.input_ports)
+        add_wire!(diagram, (input_id(diagram), idx) => (box_id, idx))
+    end
+    for (idx, sym) in enumerate(box.output_ports)
+        add_wire!(diagram, (box_id, idx) => (output_id(diagram), idx))
+    end
+    return diagram
+end
+
 function MarkovEnv(expr::BlockExpr)
     env = MarkovEnv()
     for assignment in expr.statements
         diagram, env = lower(assignment, env)
-        # I don't think the below is needed anymore..?
-        # env[nameof(assignment)] = diagram
     end
-    #return symbol_table[nameof(expr.statements[end])]
     return env
 end
 
-# Obsolete
-# WiringDiagram(expr::BlockExpr) = build_wiring_diagrams(expr)[nameof(expr.statements[end])]
+findport(p::Symbol, ps::Vector{Symbol}) = findfirst( (x -> x==p).(ps) )
 
 function lower(expr::KernelExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
     if haskey(env, expr.name)
         return (env[expr.name].diagram, env)
     else
-        diagram = WiringDiagram(ins(expr), outs(expr))
-        box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
-        for (idx, sym) in enumerate(ins(expr))
-            add_wire!(diagram, (input_id(diagram), idx) => (box_id, idx))
-        end
-        for (idx, sym) in enumerate(outs(expr))
-            add_wire!(diagram, (box_id, idx) => (output_id(diagram), idx))
-        end
-        return (diagram, env)
+        # diagram = WiringDiagram(ins(expr), outs(expr))
+        # box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
+        # for (idx, sym) in enumerate(ins(expr))
+        #     add_wire!(diagram, (input_id(diagram), idx) => (box_id, idx))
+        # end
+        # for (idx, sym) in enumerate(outs(expr))
+        #     add_wire!(diagram, (box_id, idx) => (output_id(diagram), idx))
+        # end
+        return (Box(expr.name, expr.inputs, expr.outputs), env)
     end
 end
-
-# Should not be needed if everything is wrapped in a begin..end block, correct..?
-# build_wiring_diagrams(expr::AssignmentExpr) = MarkovEnv(symbol_table = Dict(nameof(expr) => WiringDiagram(expr)))
 
 function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
   # FIXME: This code does not check environment for the LHS, and does not update environment
@@ -40,12 +45,11 @@ function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{Wiring
 	diagram = WiringDiagram(ins(expr), outs(expr))
   rhs_box, rhs_env = lower(expr.rhs, env)
 	rhs_box_id = add_box!(diagram, rhs_box)
-	# rhs_box_id = add_box!(diagram, WiringDiagram(expr.rhs, env))
 
 	for i in ins(expr)
-		src = findfirst( (x -> x==i).(ins(expr.lhs)) )
+		src = findport(i, ins(expr.lhs) )
 		if i in ins(expr.rhs)
-			tgt = findfirst( (x -> x==i).(ins(expr.rhs)) )
+			tgt = findport(i, (ins(expr.rhs)) )
 			add_wire!(diagram, (input_id(diagram), src) => (rhs_box_id, tgt))
 		else
 			del_val = add_box!(diagram, mdisc(i))
@@ -54,8 +58,8 @@ function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{Wiring
 	end
 
 	for i in outs(expr.rhs)
-		src = findfirst( (x -> x==i).(outs(expr.rhs)) )
-		tgt = findfirst( (x -> x==i).(outs(expr.lhs)) )
+		src = findport(i, (outs(expr.rhs)) )
+		tgt = findport(i, (outs(expr.lhs)) )
 		add_wire!(diagram, (rhs_box_id, src) => (output_id(diagram), tgt))
 	end
 
@@ -67,16 +71,15 @@ function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
 	diagram = WiringDiagram(ins(expr), outs(expr))
   body_box, body_env = lower(expr.body, env)
 	box_val = add_box!(diagram, body_box)
-	# box_val = add_box!(diagram, WiringDiagram(expr.body, env.symbol_table))
 
 	for i in 1:length(ins(expr))
 		add_wire!(diagram, (input_id(diagram), i) => (box_val, i))
 	end
 
 	for i in outs(expr.body)
-		inner_loc = findfirst( (x -> x==i).(outs(expr.body)) )
+		inner_loc = findport(i, (outs(expr.body)) )
 		if i in outs(expr)
-			outer_loc = findfirst( (x -> x==i).(outs(expr)) )
+			outer_loc = findport(i, (outs(expr)) )
 			add_wire!(diagram, (box_val, inner_loc) => (output_id(diagram), outer_loc) )
 		else
 			del_id = add_box!(diagram, mdisc(i))
@@ -88,15 +91,8 @@ function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
 end
 
 function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
-  
-  # Copied from stackoverflow
-  # ::Vector{Tuple{WiringDiagram, MarkovEnv}} -> (Vector{WiringDiagram}, Vector{MarkovEnv})
-  unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
-
   wd_env_pairs = [lower(f, env) for f in expr.factors]
   merged_factor_envs = merge([e for (wd, e) in wd_env_pairs]...)
-	# factor_wds = [WiringDiagram(k, env.symbol_table) for k in expr.factors]
-	#factor_wds = [md.wiring_diagram for md in factor_mds]
 	boundary_diagram = WiringDiagram(ins(expr), outs(expr))
   factor_wds = [wd for (wd, e) in wd_env_pairs]
 	box_vals = [add_box!(boundary_diagram, diagram) for diagram in factor_wds]
@@ -109,7 +105,7 @@ function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDia
   # TODO: Clean up the nested for loops
 	for factor in expr.factors
 		for (idx, sym) in enumerate(outs(factor))
-			out_location =	findfirst( (x -> x==sym).(outs(expr)) )
+			out_location =	findport(sym, (outs(expr)) )
 			num_syms = count( (x -> x==sym).(all_ins) )
 			copy_val  = add_box!(boundary_diagram, mcopy(sym, num_syms+1))
 			add_wire!(boundary_diagram, (box_val[factor], idx) => (copy_val, 1) )
@@ -117,7 +113,7 @@ function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDia
 			k = 2
 			for in_factor in expr.factors
 				if sym in ins(in_factor)
-					input_index = findfirst( (x -> x==sym).(ins(in_factor)))
+					input_index = findport(sym, (ins(in_factor)))
 					add_wire!(boundary_diagram, (copy_val, k) => (box_val[in_factor], input_index))
 					k = k+1
 				end
@@ -140,7 +136,7 @@ function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDia
 end
 
 function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
-    name = gensym("cond_"*string.(outs(exp))*"_given_"*string.(ins(exp)))
+    name = gensym(string("cond_",string.(outs(exp)),"_given_",string.(ins(exp))))
     boundary = Box(name, ins(exp), outs(exp))
     (inner_diagram, inner_env) = lower(exp.top, env)
 
@@ -157,12 +153,12 @@ function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
         add_wire!(inner_boundary, (input_id(inner_boundary), idx) => (inner_diagram_id, idx))
     end
 
-    for (idx, sym) in permuted_outs
-        src = findfirst( (x -> x==sym).(outs(exp.top)) )
+    for (idx, sym) in enumerate(permuted_outs)
+        src = findport(sym, (outs(exp.top)) )
         add_wire!(inner_boundary, (inner_diagram_id, src) => (output_id(inner_boundary), idx))
     end
 
-    entry = ConditionalEntry(boundary=boundary, inner_diagram=inner_boundary, cond_vars=exp.vars)
+    entry = CondDiagramEntry(boundary=boundary, inner_diagram=inner_boundary, cond_vars=exp.vars)
     new_env = merge(env, inner_env, Dict(name => entry))
     return (boundary, new_env)
 end
