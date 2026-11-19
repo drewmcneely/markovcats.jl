@@ -2,12 +2,12 @@ using Catlab.WiringDiagrams.DirectedWiringDiagrams
 using Catlab.WiringDiagrams.MonoidalDirectedWiringDiagrams
 
 function Base.convert(::Type{WiringDiagram}, box::Box)
-    diagram = WiringDiagram(ins(expr), outs(expr))
-    box_id = add_box!(diagram, )
-    for (idx, sym) in enumerate(ins(expr))
+    diagram = WiringDiagram(box.input_ports, box.output_ports)
+    box_id = add_box!(diagram, box)
+    for (idx, sym) in enumerate(box.input_ports)
         add_wire!(diagram, (input_id(diagram), idx) => (box_id, idx))
     end
-    for (idx, sym) in enumerate(outs(expr))
+    for (idx, sym) in enumerate(box.output_ports)
         add_wire!(diagram, (box_id, idx) => (output_id(diagram), idx))
     end
     return diagram
@@ -153,13 +153,12 @@ function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
         add_wire!(inner_boundary, (input_id(inner_boundary), idx) => (inner_diagram_id, idx))
     end
 
-    println(permuted_outs)
     for (idx, sym) in enumerate(permuted_outs)
         src = findport(sym, (outs(exp.top)) )
         add_wire!(inner_boundary, (inner_diagram_id, src) => (output_id(inner_boundary), idx))
     end
 
-    entry = ConditionalEntry(boundary=boundary, inner_diagram=inner_boundary, cond_vars=exp.vars)
+    entry = CondDiagramEntry(boundary=boundary, inner_diagram=inner_boundary, cond_vars=exp.vars)
     new_env = merge(env, inner_env, Dict(name => entry))
     return (boundary, new_env)
 end

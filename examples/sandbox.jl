@@ -5,15 +5,32 @@ using Catlab.WiringDiagramExpressions
 using MarkovCats
 using GATlab.SymbolicModels
 using Debugger
-using MarkovCats:MarkovEnv
+using MarkovCats:MarkovEnv, DiagramEntry, CondDiagramEntry, normalize_diagram, to_markov_expr
 
 ex = :(begin
-            pbar(xnext)       = ∑(x)( f(xnext|x) * p(x) )
-            joint( xnext, y ) = pbar( xnext ) * g( y | xnext )
-            bayes(xnext | y)  = joint(xnext, y) / ∑(xnext)( joint( xnext, y ) )
-            p_next( xnext )   = ∑(y)( bayes(xnext | y) * meas(y) )
+            pbar1( x1 )       = ∑(x0)( f1(x1|x0) * p0(x0) )
+            joint1( x1 , y1 ) = g1(y1|x1) * pbar1( x1 )
+            bayes1( x1 | y1 ) = joint1(x1, y1) / ∑(x1)( joint1(x1, y1) )
+            p1( x1 )          = ∑(y1)( bayes1(x1 | y1) * meas(y1) )
+
+            pbar2( x2 )       = ∑(x1)( f2(x2|x1) * p1(x1) )
+            joint2( x2 , y2 ) = g2(y2|x2) * pbar2( x2 )
+            bayes2( x2 | y2 ) = joint2(x2, y2) / ∑(x2)( joint2(x2, y2) )
+            p2( x2 )          = ∑(y2)( bayes2(x2 | y2) * meas(y2) )
        end)
 
-wiring_diagrams = ex |> parse_expr |> MarkovEnv
+markov_env = ex |> parse_expr |> MarkovEnv
 
-println(wiring_diagrams)
+# println(wiring_diagrams)
+for (name, entry) in markov_env
+    if entry isa DiagramEntry
+        println(name, ": ", to_markov_expr(entry.diagram))
+    # elseif entry isa CondDiagramEntry
+    #     plot(entry.boundary, string("boundary.png"))
+    #     plot(entry.inner_diagram, string("insides.png"))
+    else
+        println(name, ":")
+        println("\tboundary: ", to_markov_expr(entry.boundary))
+        println("\tinnards: ", to_markov_expr(entry.inner_diagram))
+    end
+end

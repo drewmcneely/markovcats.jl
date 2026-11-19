@@ -13,11 +13,24 @@ function evaluate_markov_expr(::Type{ObType}, ::Type{HomType},
     functor((ObType, HomType), markov_expr; terms=terms)
 end
 
+function normalize_diagram(diagram::WiringDiagram)
+    cart_exp = to_hom_expr(FreeCartesianCategory, diagram)
+    normalized_diagram = to_wiring_diagram(cart_exp)
+    return normalized_diagram
+end
+
+function to_markov_expr(diagram::WiringDiagram)
+    normalized_diagram = normalize_diagram(diagram)
+    return to_hom_expr(FreeMarkovCategory, normalized_diagram)
+end
+
+
 """
 dictmap :: (v->w) -> Dict{k,v} -> Dict{k,w}
 dictmap is a functorial map for dicts
 """
 dictmap(f, d::Dict) = Dict(k => f(v) for (k,v) in d)
+
 
 """
 Run a block expression written in pipe notation given a generator dict
@@ -49,14 +62,6 @@ function run_markov_program(
             output_env[name] = markov_result
         end
     end
-    # cart_exprs = dictmap(v -> to_hom_expr(FreeCartesianCategory, v), diagrams)
-    # diagrams2  = dictmap(to_wiring_diagram, cart_exprs)
-    # hom_exprs  = dictmap(v -> to_hom_expr(FreeMarkovCategory, v), diagrams2)
-    # This is a bad workaround to get a normalized wiring diagram.
-    # It goes Expr -> WiringDiagram -> HomExpr{FreeCartesianCategory} -> WiringDiagram -> HomeExpr{FreeMarkovCategory}
-    # Either the map to CartExpr or to the second WD does the normalization.
-    # diagrammap = (v -> to_hom_expr(FreeCartesianCategory, v)) |> to_wiring_diagram |> (v -> to_hom_expr(FreeMarkovCategory, v))
-    # hom_exprs = dictmap(diagrammap, diagrams)
     return output_env
 
 end
