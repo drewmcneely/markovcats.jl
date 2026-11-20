@@ -18,7 +18,6 @@ struct GeneratorEntry{HomType} <: EnvironmentEntry
     generator::HomType
 end
 
-struct HomExprEntry <: EnvironmentEntry
-    exp::HomExpr
-end
-
+# struct HomExprEntry <: EnvironmentEntry
+#     exp::HomExpr
+# end
