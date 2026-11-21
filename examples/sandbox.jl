@@ -22,23 +22,29 @@ ex = :(begin
 markov_env = ex |> parse_expr |> MarkovEnv
 
 # println(wiring_diagrams)
-for (name, entry) in markov_env
-    if entry isa DiagramEntry
-        println(name, ": ", to_markov_expr(entry.diagram))
-    # elseif entry isa CondDiagramEntry
-    #     plot(entry.boundary, string("boundary.png"))
-    #     plot(entry.inner_diagram, string("insides.png"))
-    else
-        println(name, ":")
-        println("\tboundary: ", to_markov_expr(entry.boundary))
-        println("\tinnards: ", to_markov_expr(entry.inner_diagram))
-    end
-end
+# for (name, entry) in markov_env
+#     if entry isa DiagramEntry
+#         println(name, ": ", to_markov_expr(entry.diagram))
+#     # elseif entry isa CondDiagramEntry
+#     #     plot(entry.boundary, string("boundary.png"))
+#     #     plot(entry.inner_diagram, string("insides.png"))
+#     else
+#         println(name, ":")
+#         println("\tboundary: ", to_markov_expr(entry.boundary))
+#         println("\tinnards: ", to_markov_expr(entry.inner_diagram))
+#     end
+# end
 
 p1exp = to_markov_expr(markov_env[:p1].diagram)
 condname = p1exp.args[2].args[1]
 cond_boundary = to_markov_expr(markov_env[condname].boundary)
 cond_innards = to_markov_expr(markov_env[condname].inner_diagram)
 cond_vars = markov_env[condname].cond_vars
+println(cond_vars)
 
-condexp = HomExpr{ThMarkovCategoryWithConditionals}.cond(cond_innards, cond_vars)
+# using MarkovCats.ThMarkovCategoryWithConditionals
+# using MarkovCats.FreeMarkovCategory
+# 
+# condexp = HomExpr{ThMarkovCategoryWithConditionals}.cond(cond_innards, cond_vars)
+# 
+# x = Ob{:generator}([:x],[])
