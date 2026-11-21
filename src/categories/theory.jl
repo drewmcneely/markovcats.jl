@@ -9,11 +9,9 @@ end
 
 @theory ThMarkovCategoryWithConditionals <: ThMarkovCategory begin
     cond(A::Ob, B::Ob, X::Ob, f::(A → (B ⊗ X)))::( (A ⊗ X) → B )
-    # FIXME: The following does not parse for some reason.
     # This is the defining relationship between f and cond f
-    # Δ(A)⋅(id(A)⊗f)⋅(id(A) ⊗ ◊(B) ⊗ Δ(X))⋅(cond(A,B,X,f)⊗id(X)) == f
+    Δ(A)⋅(id(A)⊗f)⋅(id(A) ⊗ ◊(B) ⊗ Δ(X))⋅(cond(A,B,X,f)⊗id(X)) == f ⊣ [A::Ob, B::Ob, X::Ob, f::(A → B)]
 end
-
 
 """ Syntax for a free Markov category.
 

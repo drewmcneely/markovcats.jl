@@ -34,3 +34,11 @@ for (name, entry) in markov_env
         println("\tinnards: ", to_markov_expr(entry.inner_diagram))
     end
 end
+
+p1exp = to_markov_expr(markov_env[:p1].diagram)
+condname = p1exp.args[2].args[1]
+cond_boundary = to_markov_expr(markov_env[condname].boundary)
+cond_innards = to_markov_expr(markov_env[condname].inner_diagram)
+cond_vars = markov_env[condname].cond_vars
+
+condexp = HomExpr{ThMarkovCategoryWithConditionals}.cond(cond_innards, cond_vars)
