@@ -1,5 +1,23 @@
 using StructEquality
 
+###################
+# Environment Types
+###################
+
+abstract type ParsedEntry end
+
+struct ParsedEnv
+    dict::Dict{Symbol, ParsedEntry}
+end
+
+struct GeneratorEntry{HomType} <: ParsedEntry
+    generator::HomType
+end
+
+###################
+# Expression Types
+###################
+
 abstract type ParsedExpr end
 
 @struct_hash_equal struct KernelExpr <: ParsedExpr

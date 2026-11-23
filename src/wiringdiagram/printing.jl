@@ -20,16 +20,16 @@ function plot(d::WiringDiagram, filepath::String)
 	end
 end
 
-function Base.show(io::IO, entry::DiagramEntry)
+function Base.show(io::IO, entry::HomEntry{WiringDiagram})
     print(io,
-          "(DiagramEntry ",
+          "(HomDiagramEntry ",
           input_ports(entry.diagram),
           " → ",
           output_ports(entry.diagram),
           " )")
 end
 
-function Base.show(io::IO, entry::CondDiagramEntry)
+function Base.show(io::IO, entry::CondEntry{WiringDiagram})
     print(io,
           "(CondDiagramEntry ",
           input_ports(entry.inner_diagram),

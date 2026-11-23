@@ -8,6 +8,8 @@ export FreeMarkovCategory
 export GaussStateSpace, GaussianKernel
 export 𝓝, Gaussian, state, affine, linear
 
+include("types.jl")
+
 include("parsedexpr/types.jl")
 include("parsedexpr/printing.jl")
 include("parsedexpr/constructors.jl")
@@ -17,6 +19,13 @@ include("parsedexpr/parsing.jl")
 include("wiringdiagram/types.jl")
 include("wiringdiagram/parsing.jl")
 include("wiringdiagram/printing.jl")
+
+include("homexpr/theory.jl")
+include("homexpr/types.jl")
+include("homexpr/constructors.jl")
+include("homexpr/helpers.jl")
+include("homexpr/parsing.jl")
+include("homexpr/printing.jl")
 
 include("categories/theory.jl")
 include("categories/gauss.jl")

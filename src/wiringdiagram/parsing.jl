@@ -13,8 +13,8 @@ function Base.convert(::Type{WiringDiagram}, box::Box)
     return diagram
 end
 
-function MarkovEnv(expr::BlockExpr)
-    env = MarkovEnv()
+function MarkovEnv{WiringDiagram}(expr::BlockExpr)
+    env = MarkovEnv{WiringDiagram}()
     for assignment in expr.statements
         diagram, env = lower(assignment, env)
     end
@@ -23,9 +23,13 @@ end
 
 findport(p::Symbol, ps::Vector{Symbol}) = findfirst( (x -> x==p).(ps) )
 
-function lower(expr::KernelExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
-    if haskey(env, expr.name)
-        return (env[expr.name].diagram, env)
+# Example
+# prior(x1) = ∑(x0)( former(x1 | x0) )
+# joint(x1, y1) = prior(x1) * model(y1 | x1)
+
+function lower(expr::KernelExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
+    if haskey(env.dict, expr.name)
+        return (env[expr.name].morphism, env)
     else
         # diagram = WiringDiagram(ins(expr), outs(expr))
         # box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
@@ -39,7 +43,7 @@ function lower(expr::KernelExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiag
     end
 end
 
-function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
+function lower(expr::AssignmentExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
   # FIXME: This code does not check environment for the LHS, and does not update environment
   # if the LHS has an overwrite. As written, I expect overwrites to just not happen.
 	diagram = WiringDiagram(ins(expr), outs(expr))
@@ -63,11 +67,11 @@ function lower(expr::AssignmentExpr, env::MarkovEnv = MarkovEnv())::Tuple{Wiring
 		add_wire!(diagram, (rhs_box_id, src) => (output_id(diagram), tgt))
 	end
 
-  output_env = merge(env, Dict( nameof(expr) => DiagramEntry(diagram)), rhs_env)
+  output_env = merge(env, MarkovEnv{WiringDiagram}( nameof(expr) => HomEntry{WiringDiagram}(diagram)), rhs_env)
   return (diagram, output_env)
 end
 
-function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
+function lower(expr::SumExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
 	diagram = WiringDiagram(ins(expr), outs(expr))
   body_box, body_env = lower(expr.body, env)
 	box_val = add_box!(diagram, body_box)
@@ -90,7 +94,7 @@ function lower(expr::SumExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
   return (diagram, merge(env, body_env))
 end
 
-function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
+function lower(expr::ProductExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
   wd_env_pairs = [lower(f, env) for f in expr.factors]
   merged_factor_envs = merge([e for (wd, e) in wd_env_pairs]...)
 	boundary_diagram = WiringDiagram(ins(expr), outs(expr))
@@ -135,7 +139,7 @@ function lower(expr::ProductExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDia
   return (boundary_diagram, merge(env, merged_factor_envs))
 end
 
-function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram, MarkovEnv}
+function lower(exp::CondExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
     name = gensym(string("cond_",string.(outs(exp)),"_given_",string.(ins(exp))))
     boundary = Box(name, ins(exp), outs(exp))
     (inner_diagram, inner_env) = lower(exp.top, env)
@@ -158,8 +162,8 @@ function lower(exp::CondExpr, env::MarkovEnv = MarkovEnv())::Tuple{WiringDiagram
         add_wire!(inner_boundary, (inner_diagram_id, src) => (output_id(inner_boundary), idx))
     end
 
-    entry = CondDiagramEntry(boundary=boundary, inner_diagram=inner_boundary, cond_vars=exp.vars)
-    new_env = merge(env, inner_env, Dict(name => entry))
+    entry = CondEntry{WiringDiagram}(boundary=boundary, innards=inner_boundary, cond_vars=exp.vars)
+    new_env = merge(env, inner_env, MarkovEnv{WiringDiagram}(name => entry))
     return (boundary, new_env)
 end
 
