@@ -20,6 +20,6 @@ function to_markov_expr(diagram::WiringDiagram)
     return to_hom_expr(FreeMarkovCategory, normalized_diagram)
 end
 
-function to_markov_expr(entry::HomDiagramEntry)::HomExpr
+function to_markov_expr(entry::HomEntry{WiringDiagram})::HomExpr
     return HomExprEntry(to_markov_expr(entry))
 end

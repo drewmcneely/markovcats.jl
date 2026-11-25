@@ -22,19 +22,19 @@ end
 
 function Base.show(io::IO, entry::HomEntry{WiringDiagram})
     print(io,
-          "(HomDiagramEntry ",
-          input_ports(entry.diagram),
+          "( :: ",
+          input_ports(entry.morphism),
           " → ",
-          output_ports(entry.diagram),
+          output_ports(entry.morphism),
           " )")
 end
 
 function Base.show(io::IO, entry::CondEntry{WiringDiagram})
     print(io,
-          "(CondDiagramEntry ",
-          input_ports(entry.inner_diagram),
+          "( :: ",
+          input_ports(entry.innards),
           " → ",
-          output_ports(entry.inner_diagram),
+          output_ports(entry.innards),
           " / ",
           entry.cond_vars,
           " )")

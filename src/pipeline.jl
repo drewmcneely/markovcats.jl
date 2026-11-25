@@ -32,7 +32,7 @@ function run_markov_program(
     output_env = Dict{Symbol, HomType}()
 
     for (name, entry) in env
-        if entry isa HomDiagramEntry
+        if entry isa HomEntry{WiringDiagram}
             cart_exp = to_hom_expr(FreeCartesianCategory, entry.diagram)
             normalized_diagram = to_wiring_diagram(cart_exp)
             markov_exp = to_hom_expr(FreeMarkovCategory, normalized_diagram)

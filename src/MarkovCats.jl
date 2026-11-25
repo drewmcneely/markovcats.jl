@@ -27,7 +27,6 @@ include("homexpr/helpers.jl")
 include("homexpr/parsing.jl")
 include("homexpr/printing.jl")
 
-include("categories/theory.jl")
 include("categories/gauss.jl")
 
 include("pipeline.jl")

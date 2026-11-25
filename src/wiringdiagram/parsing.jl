@@ -14,7 +14,7 @@ function Base.convert(::Type{WiringDiagram}, box::Box)
 end
 
 function MarkovEnv{WiringDiagram}(expr::BlockExpr)
-    env = MarkovEnv{WiringDiagram}()
+    env = MarkovEnv{WiringDiagram}(Dict{Symbol, EnvEntry{WiringDiagram}}())
     for assignment in expr.statements
         diagram, env = lower(assignment, env)
     end
@@ -29,7 +29,7 @@ findport(p::Symbol, ps::Vector{Symbol}) = findfirst( (x -> x==p).(ps) )
 
 function lower(expr::KernelExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
     if haskey(env.dict, expr.name)
-        return (env[expr.name].morphism, env)
+        return (env.dict[expr.name].morphism, env)
     else
         # diagram = WiringDiagram(ins(expr), outs(expr))
         # box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
@@ -67,7 +67,7 @@ function lower(expr::AssignmentExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{W
 		add_wire!(diagram, (rhs_box_id, src) => (output_id(diagram), tgt))
 	end
 
-  output_env = merge(env, MarkovEnv{WiringDiagram}( nameof(expr) => HomEntry{WiringDiagram}(diagram)), rhs_env)
+  output_env = merge(env, MarkovEnv{WiringDiagram}( Dict(nameof(expr) => HomEntry{WiringDiagram}(diagram))), rhs_env)
   return (diagram, output_env)
 end
 
@@ -163,7 +163,7 @@ function lower(exp::CondExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDi
     end
 
     entry = CondEntry{WiringDiagram}(boundary=boundary, innards=inner_boundary, cond_vars=exp.vars)
-    new_env = merge(env, inner_env, MarkovEnv{WiringDiagram}(name => entry))
+    new_env = merge(env, inner_env, MarkovEnv{WiringDiagram}(Dict(name => entry)))
     return (boundary, new_env)
 end
 

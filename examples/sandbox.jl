@@ -5,9 +5,10 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 using MarkovCats
 # using GATlab.SymbolicModels
 # using Debugger
-using MarkovCats:MarkovEnv, HomDiagramEntry, CondDiagramEntry, normalize_diagram, to_markov_expr
+using MarkovCats:MarkovEnv, normalize_diagram, to_markov_expr
 using MarkovCats.ThMarkovCategoryWithConditionals
 using MarkovCats.FreeMarkovCategory
+using Catlab.WiringDiagrams.DirectedWiringDiagrams
 
 ex = :(begin
             pbar1( x1 )       = ∑(x0)( f1(x1|x0) * p0(x0) )
