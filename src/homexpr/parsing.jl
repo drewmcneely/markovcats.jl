@@ -59,3 +59,16 @@ function wrap_cond(entry::CondEntry{FreeMarkovCategory.Hom})
     morphism = entry.innards
     cond(input_obj, output_obj, cond_obj, morphism)
 end
+
+function substitute_cond(exp::FreeMarkovCategory.Hom, condexp::FreeMarkovCategory.Hom, name::Symbol)
+    ObType = FreeMarkovCategory.Ob
+    HomType = FreeMarkovCategory.Hom
+    f = e -> (nameof(e) == name) ? condexp : e
+    terms = Dict(:Hom => f)
+    functor((ObType, HomType), exp; terms=terms)
+end
+
+# function contains(exp::FreeMarkovCategory.Hom, condname::Symbol)
+# end
+
+
