@@ -20,6 +20,21 @@ function to_markov_expr(diagram::WiringDiagram)
     return to_hom_expr(FreeMarkovCategory, normalized_diagram)
 end
 
-function to_markov_expr(entry::HomEntry{WiringDiagram})::HomExpr
-    return HomExprEntry(to_markov_expr(entry))
+# FIXME: ugly
+to_homexpr_entry(entry::HomEntry{WiringDiagram}) = HomEntry{FreeMarkovCategory.Hom}(to_markov_expr(entry.morphism))
+
+function to_homexpr_entry(entry::CondEntry{WiringDiagram})
+    boundary = to_markov_expr(entry.boundary)
+    innards = to_markov_expr(entry.innards)
+    cond_vars = entry.cond_vars
+    return CondEntry{FreeMarkovCategory.Hom}(boundary, innards, cond_vars)
 end
+
+function to_homexpr_env(env::MarkovEnv{WiringDiagram})
+    new_env_dict = Dict{Symbol, EnvEntry{FreeMarkovCategory.Hom}}()
+    for (k,v) in env.dict
+        new_env_dict[k] = to_homexpr_entry(v)
+    end
+    return MarkovEnv{FreeMarkovCategory.Hom}(new_env_dict)
+end
+

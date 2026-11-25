@@ -11,18 +11,18 @@ using MarkovCats.FreeMarkovCategory
 using Catlab.WiringDiagrams.DirectedWiringDiagrams
 
 ex = :(begin
-            pbar1( x1 )       = ∑(x0)( f1(x1|x0) * p0(x0) )
-            joint1( x1 , y1 ) = g1(y1|x1) * pbar1( x1 )
-            bayes1( x1 | y1 ) = joint1(x1, y1) / ∑(x1)( joint1(x1, y1) )
-            p1( x1 )          = ∑(y1)( bayes1(x1 | y1) * meas(y1) )
+            pbar₁( x₁ )       = ∑(x₀)( f₁(x₁|x₀) * p₀(x₀) )
+            joint₁( x₁ , y₁ ) = g₁(y₁|x₁) * pbar₁( x₁ )
+            bayes₁( x₁ | y₁ ) = joint₁(x₁, y₁) / ∑(x₁)( joint₁(x₁, y₁) )
+            p₁( x₁ )          = ∑(y₁)( bayes₁(x₁ | y₁) * meas(y₁) )
 
-            pbar2( x2 )       = ∑(x1)( f2(x2|x1) * p1(x1) )
-            joint2( x2 , y2 ) = g2(y2|x2) * pbar2( x2 )
-            bayes2( x2 | y2 ) = joint2(x2, y2) / ∑(x2)( joint2(x2, y2) )
-            p2( x2 )          = ∑(y2)( bayes2(x2 | y2) * meas(y2) )
+            pbar₂( x₂ )       = ∑(x₁)( f₂(x₂|x₁) * p₁(x₁) )
+            joint₂( x₂ , y₂ ) = g₂(y₂|x₂) * pbar₂( x₂ )
+            bayes₂( x₂ | y₂ ) = joint₂(x₂, y₂) / ∑(x₂)( joint₂(x₂, y₂) )
+            p₂( x₂ )          = ∑(y₂)( bayes₂(x₂ | y₂) * meas(y₂) )
        end)
 
-markov_env = ex |> parse_expr |> MarkovEnv{WiringDiagram}
+markov_env = ex |> parse_expr |> MarkovEnv{WiringDiagram} |> to_homexpr_env
 
 ## println(wiring_diagrams)
 ## for (name, entry) in markov_env
@@ -46,5 +46,7 @@ markov_env = ex |> parse_expr |> MarkovEnv{WiringDiagram}
 
 # condexp = HomExpr{ThMarkovCategoryWithConditionals}.cond(cond_innards, cond_vars)
 
-# x = FreeMarkovCategory.Ob{:generator}([:x1],[])
-# y = FreeMarkovCategory.Ob{:generator}([:y1],[])
+x = FreeMarkovCategory.Ob{:generator}([:x1],[])
+y = FreeMarkovCategory.Ob{:generator}([:y1],[])
+# f = markov_env.dict[:bayes1].morphism
+markov_env.dict

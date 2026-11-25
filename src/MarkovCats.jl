@@ -2,7 +2,7 @@ module MarkovCats
 using Base: show
 
 export plot
-export parse_expr, to_wiring_diagram, run_markov_program
+export parse_expr, to_wiring_diagram, run_markov_program, to_homexpr_env
 export FreeMarkovCategory
 
 export GaussStateSpace, GaussianKernel

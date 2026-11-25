@@ -28,8 +28,8 @@ findport(p::Symbol, ps::Vector{Symbol}) = findfirst( (x -> x==p).(ps) )
 # joint(x1, y1) = prior(x1) * model(y1 | x1)
 
 function lower(expr::KernelExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDiagram}())::Tuple{WiringDiagram, MarkovEnv{WiringDiagram}}
-    if haskey(env.dict, expr.name)
-        return (env.dict[expr.name].morphism, env)
+    if haskey(env, expr.name)
+        return (env[expr.name].morphism, env)
     else
         # diagram = WiringDiagram(ins(expr), outs(expr))
         # box_id = add_box!(diagram, Box(expr.name, expr.inputs, expr.outputs))
