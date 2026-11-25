@@ -68,7 +68,24 @@ function substitute_cond(exp::FreeMarkovCategory.Hom, condexp::FreeMarkovCategor
     functor((ObType, HomType), exp; terms=terms)
 end
 
-# function contains(exp::FreeMarkovCategory.Hom, condname::Symbol)
-# end
+function leafnames(exp::FreeMarkovCategory.Hom)::Vector{Symbol}
+    if head(exp) == :generator
+        return [nameof(exp)]
+    else
+        branches = filter(e -> e isa FreeMarkovCategory.Hom, args(exp))
+        return vcat([leafnames(b) for b in branches]...)
+    end
+end
 
+contains(entry::HomEntry, name::Symbol) = name in leafnames(entry.morphism)
+contains(entry::CondEntry, name::Symbol) = name in leafnames(entry.innards)
 
+function conditional_dependency_graph(env::MarkovEnv{FreeMarkovCategory.Hom})::DependencyGraph{Symbol}
+    nodes = [k for (k,v) in env.dict]
+    conditionals = filter(k -> env[k] isa CondEntry, nodes)
+    # edges = Pair{Symbol, Symbol}[]
+    dependencies(node) = filter(cond -> contains(env[node], cond), conditionals)
+    dependency_pairs(node) = [node => dep for dep in dependencies(node)]
+    edges = vcat([dependency_pairs(node) for node in nodes]...)
+    return DependencyGraph(nodes, edges)
+end

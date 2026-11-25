@@ -6,7 +6,7 @@ using MarkovCats
 # using GATlab.SymbolicModels
 # using Debugger
 using MarkovCats:MarkovEnv, normalize_diagram, to_markov_expr
-using MarkovCats:obj_from_syms, wrap_cond, substitute_cond
+using MarkovCats:obj_from_syms, wrap_cond, substitute_cond, leafnames, conditional_dependency_graph
 using MarkovCats.ThMarkovCategoryWithConditionals
 using MarkovCats.FreeMarkovCategory
 using Catlab.WiringDiagrams.DirectedWiringDiagrams
