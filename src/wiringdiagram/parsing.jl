@@ -162,7 +162,11 @@ function lower(exp::CondExpr, env::MarkovEnv{WiringDiagram} = MarkovEnv{WiringDi
         add_wire!(inner_boundary, (inner_diagram_id, src) => (output_id(inner_boundary), idx))
     end
 
-    entry = CondEntry{WiringDiagram}(boundary=boundary, innards=inner_boundary, cond_vars=exp.vars)
+    entry = CondEntry{WiringDiagram}(boundary=boundary,
+                                     innards=inner_boundary,
+                                     cond_vars=exp.vars,
+                                     input_vars=ins(exp.top),
+                                     output_vars=outs(exp))
     new_env = merge(env, inner_env, MarkovEnv{WiringDiagram}(Dict(name => entry)))
     return (boundary, new_env)
 end

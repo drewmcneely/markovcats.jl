@@ -19,7 +19,7 @@ In this syntax, the pairing and projection operations are defined using
 duplication and deletion, and do not have their own syntactic elements.
 This convention could be dropped or reversed.
 """
-@symbolic_model FreeMarkovCategory{ObExpr,HomExpr} ThMarkovCategory begin
+@symbolic_model FreeMarkovCategory{ObExpr,HomExpr} ThMarkovCategoryWithConditionals begin
   otimes(A::Ob, B::Ob) = associate_unit(new(A,B), munit)
   otimes(f::Hom, g::Hom) = associate(new(f,g))
 
@@ -33,3 +33,4 @@ show_latex(io::IO, expr::HomExpr{:mcopy}; kw...) =
   show_latex_script(io, expr, "\\Delta")
 show_latex(io::IO, expr::HomExpr{:delete}; kw...) =
   show_latex_script(io, expr, "\\lozenge")
+

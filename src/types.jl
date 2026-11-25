@@ -20,5 +20,7 @@ end
 @kwdef struct CondEntry{T} <: EnvEntry{T}
     boundary::T
     innards::T
+    input_vars::Vector{Symbol}
+    output_vars::Vector{Symbol}
     cond_vars::Vector{Symbol}
 end

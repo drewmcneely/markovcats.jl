@@ -5,7 +5,7 @@ Pkg.activate(joinpath(@__DIR__, ".."))
 using MarkovCats
 # using GATlab.SymbolicModels
 # using Debugger
-using MarkovCats:MarkovEnv, normalize_diagram, to_markov_expr
+using MarkovCats:MarkovEnv, normalize_diagram, to_markov_expr, obj_from_syms, wrap_cond
 using MarkovCats.ThMarkovCategoryWithConditionals
 using MarkovCats.FreeMarkovCategory
 using Catlab.WiringDiagrams.DirectedWiringDiagrams
@@ -38,8 +38,28 @@ markov_env = ex |> parse_expr |> MarkovEnv{WiringDiagram} |> to_homexpr_env
 ##     end
 ## end
 
-# p1exp = to_markov_expr(markov_env[:p1].diagram)
-# condname = p1exp.args[2].args[1]
+p1exp = markov_env[:p₁].morphism
+condname = p1exp.args[2].args[1]
+inner_exp = markov_env[condname].innards
+
+cond_vars = markov_env[condname].cond_vars
+cond_obj = obj_from_syms(cond_vars)
+# cond_objs = (x -> FreeMarkovCategory.Ob{:generator}([x],[])).(cond_vars)
+# cond_obj  = otimes(cond_objs)
+
+input_vars = markov_env[condname].input_vars
+input_obj = obj_from_syms(input_vars)
+# input_objs = (x -> FreeMarkovCategory.Ob{:generator}([x],[])).(input_vars)
+# input_obj  = otimes(input_objs)
+# input_obj = dom(inner_exp)
+
+output_vars = markov_env[condname].output_vars
+output_obj = obj_from_syms(output_vars)
+
+wrap_cond(markov_env[condname])
+# output_objs = (x -> FreeMarkovCategory.Ob{:generator}([x],[])).(output_vars)
+# output_obj  = otimes(output_objs)
+
 # cond_boundary = to_markov_expr(markov_env[condname].boundary)
 # cond_innards = to_markov_expr(markov_env[condname].inner_diagram)
 # cond_vars = markov_env[condname].cond_vars

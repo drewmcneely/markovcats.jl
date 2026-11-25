@@ -20,6 +20,14 @@ function to_markov_expr(diagram::WiringDiagram)
     return to_hom_expr(FreeMarkovCategory, normalized_diagram)
 end
 
+function obj_from_syms(vars::Vector{Symbol})
+    if isempty(vars)
+        munit(FreeMarkovCategory.Ob)
+    else
+        otimes((x -> FreeMarkovCategory.Ob{:generator}([x],[])).(vars))
+    end
+end
+
 # FIXME: ugly
 to_homexpr_entry(entry::HomEntry{WiringDiagram}) = HomEntry{FreeMarkovCategory.Hom}(to_markov_expr(entry.morphism))
 
@@ -27,7 +35,13 @@ function to_homexpr_entry(entry::CondEntry{WiringDiagram})
     boundary = to_markov_expr(entry.boundary)
     innards = to_markov_expr(entry.innards)
     cond_vars = entry.cond_vars
-    return CondEntry{FreeMarkovCategory.Hom}(boundary, innards, cond_vars)
+    input_vars = entry.input_vars
+    output_vars = entry.output_vars
+    return CondEntry{FreeMarkovCategory.Hom}(boundary,
+                                             innards,
+                                             input_vars,
+                                             output_vars,
+                                             cond_vars)
 end
 
 function to_homexpr_env(env::MarkovEnv{WiringDiagram})
@@ -38,3 +52,10 @@ function to_homexpr_env(env::MarkovEnv{WiringDiagram})
     return MarkovEnv{FreeMarkovCategory.Hom}(new_env_dict)
 end
 
+function wrap_cond(entry::CondEntry{FreeMarkovCategory.Hom})
+    input_obj = obj_from_syms(entry.input_vars)
+    output_obj = obj_from_syms(entry.output_vars)
+    cond_obj = obj_from_syms(entry.cond_vars)
+    morphism = entry.innards
+    cond(input_obj, output_obj, cond_obj, morphism)
+end
